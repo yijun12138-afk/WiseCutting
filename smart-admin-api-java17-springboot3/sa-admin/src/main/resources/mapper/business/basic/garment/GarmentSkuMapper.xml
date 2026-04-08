@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.lab1024.sa.admin.module.business.basic.garment.dao.GarmentSkuDao">
+
+    <select id="queryByGarmentId" resultType="net.lab1024.sa.admin.module.business.basic.garment.domain.vo.GarmentSkuVO">
+        SELECT sku_id, garment_id, color_name, color_code, size_name, sku_no, price
+        FROM t_garment_sku
+        WHERE garment_id = #{garmentId} AND deleted_flag = 0
+    </select>
+
+    <select id="queryByGarmentIds" resultType="net.lab1024.sa.admin.module.business.basic.garment.domain.vo.GarmentSkuVO">
+        SELECT sku_id, garment_id, color_name, color_code, size_name, sku_no, price
+        FROM t_garment_sku
+        WHERE garment_id IN
+        <foreach collection="garmentIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND deleted_flag = 0
+    </select>
+
+    <update id="deleteByGarmentId">
+        UPDATE t_garment_sku SET deleted_flag = 1 WHERE garment_id = #{garmentId}
+    </update>
+
+</mapper>

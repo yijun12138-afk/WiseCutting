@@ -60,8 +60,8 @@ import { SmartLoading } from '/@/components/framework/smart-loading';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
 import { fabricSpreadApi } from '/@/api/business/production/spread-api';
-import SpreadFormModal from '../../production/spread/components/spread-form-modal.vue';
-import SpreadCompleteModal from '../../production/spread/components/spread-complete-modal.vue';
+import SpreadFormModal from '../production/spread/components/spread-form-modal.vue';
+import SpreadCompleteModal from '../production/spread/components/spread-complete-modal.vue';
 import _ from 'lodash';
 
 const columns = [

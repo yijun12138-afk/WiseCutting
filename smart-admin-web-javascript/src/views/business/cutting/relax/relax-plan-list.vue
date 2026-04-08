@@ -54,7 +54,7 @@ import { SmartLoading } from '/@/components/framework/smart-loading';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
 import { fabricRelaxApi } from '/@/api/business/production/relax-api';
-import RelaxFormModal from '../../production/relax/components/relax-form-modal.vue';
+import RelaxFormModal from '../production/relax/components/relax-form-modal.vue';
 import _ from 'lodash';
 
 const columns = [
