@@ -1,19 +1,20 @@
 <template>
   <a-modal :title="form.spreadId ? '编辑铺布任务' : '新建铺布任务'" v-model:open="visible" @ok="onSubmit" @cancel="onClose" :confirmLoading="loading" width="600px">
     <a-form ref="formRef" :model="form" :rules="rules" :label-col="{ span: 6 }">
-      <a-form-item label="指令单号" name="orderId">
-        <a-select v-model:value="form.orderId" placeholder="请选择指令单" style="width:100%" @change="onOrderChange" showSearch optionFilterProp="children">
+      <a-form-item label="指令单" name="orderId">
+        <a-select v-model:value="form.orderId" placeholder="请选择指令单" style="width:100%" @change="onOrderChange" showSearch optionFilterProp="children" allowClear>
           <a-select-option v-for="o in orderList" :key="o.orderId" :value="o.orderId">{{ o.orderNo }}</a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="面料编号" name="fabricNo">
-        <a-input v-model:value="form.fabricNo" placeholder="请输入面料编号" />
-      </a-form-item>
-      <a-form-item label="面料名称" name="fabricName">
-        <a-input v-model:value="form.fabricName" placeholder="请输入面料名称" />
+      <a-form-item label="面料" name="fabricId">
+        <a-select v-model:value="form.fabricId" placeholder="请选择面料" style="width:100%" @change="onFabricChange" showSearch optionFilterProp="children" allowClear>
+          <a-select-option v-for="f in fabricList" :key="f.fabricId" :value="f.fabricId">{{ f.fabricNo }} - {{ f.fabricName }}</a-select-option>
+        </a-select>
       </a-form-item>
       <a-form-item label="颜色" name="colorName">
-        <a-input v-model:value="form.colorName" placeholder="请输入颜色" />
+        <a-select v-model:value="form.colorName" placeholder="请选择颜色" style="width:100%" allowClear>
+          <a-select-option v-for="c in colorList" :key="c.colorName" :value="c.colorName">{{ c.colorName }}</a-select-option>
+        </a-select>
       </a-form-item>
       <a-form-item label="需求层数" name="requireLayers">
         <a-input-number style="width:100%" v-model:value="form.requireLayers" :min="1" placeholder="需求层数" />
@@ -33,12 +34,15 @@ import { message } from 'ant-design-vue';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { fabricSpreadApi } from '/@/api/business/production/spread-api';
 import { productionOrderApi } from '/@/api/business/production/order-api';
+import { fabricApi } from '/@/api/business/basic/fabric-api';
 
 const emit = defineEmits(['reload']);
 const formRef = ref();
 const visible = ref(false);
 const loading = ref(false);
 const orderList = ref([]);
+const fabricList = ref([]);
+const colorList = ref([]);
 
 const formDefault = {
   spreadId: undefined, orderId: undefined, orderNo: '',
@@ -50,14 +54,31 @@ const rules = { orderId: [{ required: true, message: '请选择指令单' }] };
 
 onMounted(async () => {
   try {
-    const res = await productionOrderApi.query({ pageNum: 1, pageSize: 200, status: 2 });
-    orderList.value = res.data?.list || [];
+    const [orderRes, fabricRes] = await Promise.all([
+      productionOrderApi.query({ pageNum: 1, pageSize: 200 }),
+      fabricApi.listAll(),
+    ]);
+    orderList.value = orderRes.data?.list || [];
+    fabricList.value = fabricRes.data || [];
   } catch (e) { smartSentry.captureError(e); }
 });
 
 function onOrderChange(val) {
   const o = orderList.value.find(x => x.orderId === val);
   form.orderNo = o ? o.orderNo : '';
+}
+
+async function onFabricChange(val) {
+  const f = fabricList.value.find(x => x.fabricId === val);
+  if (f) { form.fabricNo = f.fabricNo; form.fabricName = f.fabricName; }
+  else { form.fabricNo = ''; form.fabricName = ''; }
+  form.colorName = '';
+  colorList.value = [];
+  if (!val) return;
+  try {
+    const res = await fabricApi.skuList(val);
+    colorList.value = res.data || [];
+  } catch (e) { smartSentry.captureError(e); }
 }
 
 function show(row) {

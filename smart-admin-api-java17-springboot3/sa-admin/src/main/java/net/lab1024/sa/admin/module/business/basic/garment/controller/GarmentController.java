@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import net.lab1024.sa.admin.module.business.basic.garment.domain.form.GarmentAddForm;
 import net.lab1024.sa.admin.module.business.basic.garment.domain.form.GarmentQueryForm;
 import net.lab1024.sa.admin.module.business.basic.garment.domain.vo.GarmentVO;
+import java.util.List;
 import net.lab1024.sa.admin.module.business.basic.garment.service.GarmentService;
 import net.lab1024.sa.base.common.domain.PageResult;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
@@ -25,6 +26,12 @@ public class GarmentController {
     @SaCheckPermission("basic:garment:query")
     public ResponseDTO<PageResult<GarmentVO>> query(@RequestBody @Valid GarmentQueryForm queryForm) {
         return garmentService.query(queryForm);
+    }
+
+    @Operation(summary = "所有成衣列表")
+    @GetMapping("/basic/garment/listAll")
+    public ResponseDTO<List<GarmentVO>> listAll() {
+        return garmentService.queryAll();
     }
 
     @Operation(summary = "新增/修改成衣")

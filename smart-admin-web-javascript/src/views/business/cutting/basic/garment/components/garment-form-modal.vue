@@ -10,8 +10,10 @@
       <a-form-item label="成衣类型" name="garmentType">
         <a-input v-model:value="form.garmentType" placeholder="如：上衣/裤子/裙子" />
       </a-form-item>
-      <a-form-item label="单位名称" name="unitName">
-        <a-input v-model:value="form.unitName" placeholder="如：件/套" />
+      <a-form-item label="单位" name="unitId">
+        <a-select v-model:value="form.unitId" placeholder="请选择单位" style="width:100%" @change="onUnitChange" allowClear>
+          <a-select-option v-for="u in unitList" :key="u.unitId" :value="u.unitId">{{ u.unitName }}</a-select-option>
+        </a-select>
       </a-form-item>
       <a-form-item label="备注" name="remark">
         <a-input v-model:value="form.remark" placeholder="请输入备注" />
@@ -20,21 +22,34 @@
   </a-modal>
 </template>
 <script setup>
-import { ref, reactive, nextTick } from 'vue';
+import { ref, reactive, nextTick, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { garmentApi } from '/@/api/business/basic/garment-api';
+import { unitApi } from '/@/api/business/basic/unit-api';
 
 const emit = defineEmits(['reload']);
 const formRef = ref();
 const visible = ref(false);
 const loading = ref(false);
+const unitList = ref([]);
+
 const formDefault = { garmentId: undefined, garmentNo: '', garmentName: '', garmentType: '', unitId: undefined, unitName: '', remark: '' };
 const form = reactive({ ...formDefault });
 const rules = {
   garmentNo: [{ required: true, message: '成衣编号不能为空' }],
   garmentName: [{ required: true, message: '成衣名称不能为空' }],
 };
+
+onMounted(async () => {
+  try { const res = await unitApi.listAll(); unitList.value = res.data || []; }
+  catch (e) { smartSentry.captureError(e); }
+});
+
+function onUnitChange(val) {
+  const u = unitList.value.find(x => x.unitId === val);
+  form.unitName = u ? u.unitName : '';
+}
 
 function show(row) { Object.assign(form, formDefault); if (row) Object.assign(form, row); visible.value = true; nextTick(() => formRef.value?.clearValidate()); }
 function onClose() { visible.value = false; }

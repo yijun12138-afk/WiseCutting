@@ -77,6 +77,10 @@ public class FabricService {
         return ResponseDTO.ok();
     }
 
+    public ResponseDTO<List<FabricSkuVO>> querySkuList(Long fabricId) {
+        return ResponseDTO.ok(fabricSkuDao.queryByFabricId(fabricId));
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> delete(Long fabricId) {
         FabricEntity entity = fabricDao.selectById(fabricId);

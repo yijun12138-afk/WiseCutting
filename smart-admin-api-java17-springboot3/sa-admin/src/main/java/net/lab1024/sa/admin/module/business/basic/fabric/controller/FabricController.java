@@ -7,6 +7,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import net.lab1024.sa.admin.module.business.basic.fabric.domain.form.FabricAddForm;
 import net.lab1024.sa.admin.module.business.basic.fabric.domain.form.FabricQueryForm;
+import net.lab1024.sa.admin.module.business.basic.fabric.domain.vo.FabricSkuVO;
 import net.lab1024.sa.admin.module.business.basic.fabric.domain.vo.FabricVO;
 import net.lab1024.sa.admin.module.business.basic.fabric.service.FabricService;
 import net.lab1024.sa.base.common.domain.PageResult;
@@ -32,6 +33,12 @@ public class FabricController {
     @GetMapping("/basic/fabric/listAll")
     public ResponseDTO<List<FabricVO>> listAll() {
         return fabricService.queryAll();
+    }
+
+    @Operation(summary = "面料SKU列表（颜色）")
+    @GetMapping("/basic/fabric/skuList/{fabricId}")
+    public ResponseDTO<List<FabricSkuVO>> skuList(@PathVariable Long fabricId) {
+        return fabricService.querySkuList(fabricId);
     }
 
     @Operation(summary = "新增/修改面料")

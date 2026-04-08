@@ -32,6 +32,10 @@ public class GarmentService {
     @Resource
     private GarmentSkuDao garmentSkuDao;
 
+    public ResponseDTO<List<GarmentVO>> queryAll() {
+        return ResponseDTO.ok(garmentDao.queryAll());
+    }
+
     public ResponseDTO<PageResult<GarmentVO>> query(GarmentQueryForm queryForm) {
         queryForm.setDeletedFlag(false);
         Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);

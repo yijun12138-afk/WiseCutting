@@ -1,17 +1,19 @@
 <template>
   <a-modal :title="form.planId ? '编辑裁剪计划' : '新建裁剪计划'" v-model:open="visible" @ok="onSubmit" @cancel="onClose" :confirmLoading="loading" width="600px">
     <a-form ref="formRef" :model="form" :rules="rules" :label-col="{ span: 6 }">
-      <a-form-item label="指令单号" name="orderNo">
-        <a-input v-model:value="form.orderNo" placeholder="请输入指令单号" />
+      <a-form-item label="指令单" name="orderId">
+        <a-select v-model:value="form.orderId" placeholder="请选择指令单" style="width:100%" @change="onOrderChange" showSearch optionFilterProp="children" allowClear>
+          <a-select-option v-for="o in orderList" :key="o.orderId" :value="o.orderId">{{ o.orderNo }}</a-select-option>
+        </a-select>
       </a-form-item>
       <a-form-item label="客户名称" name="customerName">
-        <a-input v-model:value="form.customerName" placeholder="请输入客户名称" />
+        <a-input v-model:value="form.customerName" placeholder="选择指令单后自动填充" />
       </a-form-item>
       <a-form-item label="款号" name="styleNo">
-        <a-input v-model:value="form.styleNo" placeholder="请输入款号" />
+        <a-input v-model:value="form.styleNo" placeholder="选择指令单后自动填充" />
       </a-form-item>
       <a-form-item label="款名" name="styleName">
-        <a-input v-model:value="form.styleName" placeholder="请输入款名" />
+        <a-input v-model:value="form.styleName" placeholder="选择指令单后自动填充" />
       </a-form-item>
       <a-form-item label="计划日期" name="planDate">
         <a-date-picker style="width:100%" v-model:value="form.planDate" valueFormat="YYYY-MM-DD" placeholder="选择计划日期" />
@@ -36,15 +38,18 @@
   </a-modal>
 </template>
 <script setup>
-import { ref, reactive, nextTick } from 'vue';
+import { ref, reactive, nextTick, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { cuttingPlanApi } from '/@/api/business/cutting/cutting-plan-api';
+import { productionOrderApi } from '/@/api/business/production/order-api';
 
 const emit = defineEmits(['reload']);
 const formRef = ref();
 const visible = ref(false);
 const loading = ref(false);
+const orderList = ref([]);
+
 const formDefault = {
   planId: undefined, orderId: undefined, orderNo: '', customerName: '',
   styleNo: '', styleName: '', planDate: undefined, planQuantity: undefined,
@@ -52,6 +57,23 @@ const formDefault = {
 };
 const form = reactive({ ...formDefault });
 const rules = {};
+
+onMounted(async () => {
+  try {
+    const res = await productionOrderApi.query({ pageNum: 1, pageSize: 200 });
+    orderList.value = res.data?.list || [];
+  } catch (e) { smartSentry.captureError(e); }
+});
+
+function onOrderChange(val) {
+  const o = orderList.value.find(x => x.orderId === val);
+  if (o) {
+    form.orderNo = o.orderNo;
+    form.customerName = o.customerName;
+    form.styleNo = o.styleNo;
+    form.styleName = o.styleName;
+  }
+}
 
 function show(row) {
   Object.assign(form, formDefault);

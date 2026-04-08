@@ -12,4 +12,5 @@ import java.util.List;
 @Mapper
 public interface GarmentDao extends BaseMapper<GarmentEntity> {
     List<GarmentVO> queryPage(Page<?> page, @Param("queryForm") GarmentQueryForm queryForm);
+    List<GarmentVO> queryAll();
 }
