@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.lab1024.sa.admin.module.business.basic.unit.dao.UnitDao">
+
+    <!-- 分页查询单位 -->
+    <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.unit.domain.vo.UnitVO">
+        SELECT unit_id, unit_code, unit_name, remark, create_time
+        FROM t_unit
+        <where>
+            deleted_flag = 0
+            <if test="queryForm.unitName != null and queryForm.unitName != ''">
+                AND INSTR(unit_name, #{queryForm.unitName})
+            </if>
+        </where>
+        ORDER BY unit_id DESC
+    </select>
+
+    <!-- 查询全部单位 -->
+    <select id="queryAll" resultType="net.lab1024.sa.admin.module.business.basic.unit.domain.vo.UnitVO">
+        SELECT unit_id, unit_code, unit_name, remark, create_time
+        FROM t_unit
+        WHERE deleted_flag = 0
+        ORDER BY unit_id DESC
+    </select>
+
+</mapper>

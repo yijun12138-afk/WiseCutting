@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.lab1024.sa.admin.module.business.cutting.order.dao.CuttingOrderDao">
+    <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.cutting.order.domain.vo.CuttingOrderVO">
+        SELECT cutting_order_id, cutting_order_no, plan_id, plan_no, order_id, order_no,
+               customer_name, style_no, style_name, color_name, size_name, quantity,
+               bed_no, layers, fabric_no, fabric_name, status, remark, create_user_name, create_time
+        FROM t_cutting_order
+        <where>
+            deleted_flag = 0
+            <if test="queryForm.cuttingOrderNo != null and queryForm.cuttingOrderNo != ''">
+                AND INSTR(cutting_order_no, #{queryForm.cuttingOrderNo})
+            </if>
+            <if test="queryForm.orderNo != null and queryForm.orderNo != ''">
+                AND INSTR(order_no, #{queryForm.orderNo})
+            </if>
+            <if test="queryForm.status != null">
+                AND status = #{queryForm.status}
+            </if>
+        </where>
+        ORDER BY cutting_order_id DESC
+    </select>
+</mapper>

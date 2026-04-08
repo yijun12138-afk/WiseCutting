@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.lab1024.sa.admin.module.business.basic.customer.dao.CustomerDao">
+
+    <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.customer.domain.vo.CustomerVO">
+        SELECT customer_id, customer_name, company_name, contact_person, phone, level,
+        disabled_flag, remark, create_time
+        FROM t_customer
+        <where>
+            deleted_flag = 0
+            <if test="queryForm.searchWord != null and queryForm.searchWord != ''">
+                AND (
+                INSTR(customer_name, #{queryForm.searchWord})
+                OR INSTR(company_name, #{queryForm.searchWord})
+                )
+            </if>
+            <if test="queryForm.disabledFlag != null">
+                AND disabled_flag = #{queryForm.disabledFlag}
+            </if>
+        </where>
+        ORDER BY customer_id DESC
+    </select>
+
+    <select id="queryAll" resultType="net.lab1024.sa.admin.module.business.basic.customer.domain.vo.CustomerVO">
+        SELECT customer_id, customer_name, company_name, contact_person, phone, level,
+        disabled_flag, remark, create_time
+        FROM t_customer
+        <where>
+            deleted_flag = 0
+            <if test="queryForm.searchWord != null and queryForm.searchWord != ''">
+                AND (
+                INSTR(customer_name, #{queryForm.searchWord})
+                OR INSTR(company_name, #{queryForm.searchWord})
+                )
+            </if>
+            <if test="queryForm.disabledFlag != null">
+                AND disabled_flag = #{queryForm.disabledFlag}
+            </if>
+        </where>
+        ORDER BY customer_id DESC
+    </select>
+
+</mapper>

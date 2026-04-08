@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.lab1024.sa.admin.module.business.basic.garment.dao.GarmentDao">
+
+    <!-- 分页查询成衣 -->
+    <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.garment.domain.vo.GarmentVO">
+        SELECT g.garment_id, g.garment_no, g.garment_name, g.garment_type,
+               g.unit_id, g.unit_name, g.remark, g.create_time
+        FROM t_garment g
+        <where>
+            g.deleted_flag = 0
+            <if test="queryForm.garmentName != null and queryForm.garmentName != ''">
+                AND INSTR(g.garment_name, #{queryForm.garmentName})
+            </if>
+            <if test="queryForm.garmentNo != null and queryForm.garmentNo != ''">
+                AND INSTR(g.garment_no, #{queryForm.garmentNo})
+            </if>
+        </where>
+        ORDER BY g.garment_id DESC
+    </select>
+
+</mapper>
