@@ -1,6 +1,12 @@
 <template>
   <a-modal :title="form.unitId ? '编辑单位' : '新建单位'" v-model:open="visible" @ok="onSubmit" @cancel="onClose" :confirmLoading="loading">
     <a-form ref="formRef" :model="form" :rules="rules" :label-col="{ span: 5 }">
+      <a-form-item label="单位编码" v-if="form.unitId">
+        <a-input :value="form.unitCode" disabled placeholder="系统自动生成" />
+      </a-form-item>
+      <a-form-item label="单位编码" v-else>
+        <a-input disabled placeholder="系统自动生成" />
+      </a-form-item>
       <a-form-item label="单位名称" name="unitName">
         <a-input v-model:value="form.unitName" placeholder="请输入单位名称" />
       </a-form-item>
@@ -20,7 +26,7 @@ const emit = defineEmits(['reload']);
 const formRef = ref();
 const visible = ref(false);
 const loading = ref(false);
-const formDefault = { unitId: undefined, unitName: '', remark: '' };
+const formDefault = { unitId: undefined, unitCode: '', unitName: '', remark: '' };
 const form = reactive({ ...formDefault });
 const rules = { unitName: [{ required: true, message: '单位名称不能为空' }] };
 

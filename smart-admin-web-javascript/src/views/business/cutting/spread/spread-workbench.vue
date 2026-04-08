@@ -19,7 +19,7 @@
             <a-descriptions-item label="实际长度">{{ item.actualLength ? item.actualLength + 'm' : '-' }}</a-descriptions-item>
           </a-descriptions>
           <div style="margin-top:8px;text-align:right" v-if="item.status !== 2">
-            <a-button type="primary" size="small" @click="openComplete(item)">完成铺布</a-button>
+            <a-button type="primary" size="small" @click="openComplete(item)">完成任务</a-button>
           </div>
         </a-card>
       </a-col>

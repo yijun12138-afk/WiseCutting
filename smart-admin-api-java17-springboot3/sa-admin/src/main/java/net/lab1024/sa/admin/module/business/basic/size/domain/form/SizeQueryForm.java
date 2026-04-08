@@ -5,6 +5,6 @@ import net.lab1024.sa.base.common.domain.PageParam;
 
 @Data
 public class SizeQueryForm extends PageParam {
-    private String sizeName;
+    private String searchWord;
     private Boolean deletedFlag;
 }

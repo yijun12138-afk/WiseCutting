@@ -1,11 +1,8 @@
 <template>
-  <a-modal :title="form.partId ? '编辑裁片部位' : '新建裁片部位'" v-model:open="visible" @ok="onSubmit" @cancel="onClose" :confirmLoading="loading">
+  <a-modal :title="form.partId ? '编辑裁片部位' : '添加'" v-model:open="visible" @ok="onSubmit" @cancel="onClose" :confirmLoading="loading">
     <a-form ref="formRef" :model="form" :rules="rules" :label-col="{ span: 5 }">
       <a-form-item label="部位名称" name="partName">
         <a-input v-model:value="form.partName" placeholder="请输入部位名称" />
-      </a-form-item>
-      <a-form-item label="部位编码" name="partCode">
-        <a-input v-model:value="form.partCode" placeholder="请输入部位编码" />
       </a-form-item>
       <a-form-item label="备注" name="remark">
         <a-input v-model:value="form.remark" placeholder="请输入备注" />
@@ -23,7 +20,7 @@ const emit = defineEmits(['reload']);
 const formRef = ref();
 const visible = ref(false);
 const loading = ref(false);
-const formDefault = { partId: undefined, partName: '', partCode: '', remark: '' };
+const formDefault = { partId: undefined, partName: '', remark: '' };
 const form = reactive({ ...formDefault });
 const rules = { partName: [{ required: true, message: '部位名称不能为空' }] };
 

@@ -1,8 +1,8 @@
 <template>
   <a-form class="smart-query-form">
     <a-row class="smart-query-form-row">
-      <a-form-item label="部位名称" class="smart-query-form-item">
-        <a-input style="width:200px" v-model:value="queryForm.partName" placeholder="部位名称" />
+      <a-form-item label="关键字查询" class="smart-query-form-item">
+        <a-input style="width:200px" v-model:value="queryForm.searchWord" placeholder="部位名称/备注" />
       </a-form-item>
       <a-form-item class="smart-query-form-item">
         <a-button-group>
@@ -48,13 +48,11 @@ import CuttingPartFormModal from './components/cuttingpart-form-modal.vue';
 import _ from 'lodash';
 
 const columns = ref([
-  { title: '部位编码', dataIndex: 'partCode', width: 120 },
   { title: '部位名称', dataIndex: 'partName', width: 150 },
   { title: '备注', dataIndex: 'remark', ellipsis: true, width: 200 },
-  { title: '创建时间', dataIndex: 'createTime', width: 160 },
   { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
 ]);
-const queryFormState = { partName: '', pageNum: 1, pageSize: 10 };
+const queryFormState = { searchWord: '', pageNum: 1, pageSize: 10 };
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);

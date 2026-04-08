@@ -1,8 +1,14 @@
 <template>
   <a-form class="smart-query-form">
     <a-row class="smart-query-form-row">
-      <a-form-item label="客户名称" class="smart-query-form-item">
+      <a-form-item label="关键字" class="smart-query-form-item">
         <a-input style="width:200px" v-model:value="queryForm.searchWord" placeholder="客户名称/公司名称" />
+      </a-form-item>
+      <a-form-item label="停用标识" class="smart-query-form-item">
+        <a-select style="width:120px" v-model:value="queryForm.disabledFlag" placeholder="全部" allowClear>
+          <a-select-option :value="false">正常</a-select-option>
+          <a-select-option :value="true">停用</a-select-option>
+        </a-select>
       </a-form-item>
       <a-form-item class="smart-query-form-item">
         <a-button-group>
@@ -62,7 +68,7 @@ const columns = ref([
   { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
 ]);
 
-const queryFormState = { searchWord: '', pageNum: 1, pageSize: 10 };
+const queryFormState = { searchWord: '', disabledFlag: undefined, pageNum: 1, pageSize: 10 };
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);

@@ -1,5 +1,5 @@
 <template>
-  <default-home-card icon="Profile" title="销量统计">
+  <default-home-card icon="Profile" title="指令单变化趋势">
     <div class="echarts-box">
       <div class="category-main" id="category-main"></div>
     </div>
@@ -16,58 +16,37 @@
 
   function init() {
     let option = {
-      xAxis: {
-        type: 'category',
-        data: ['周一', '周二', '周三', '周四', '周五'],
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
       },
-      yAxis: {
-        type: 'value',
-      },
-      legend: {},
+      legend: { data: ['新建', '下达', '完工'] },
       grid: {
         left: '3%',
         right: '4%',
         bottom: '3%',
         containLabel: true,
       },
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow',
-        },
+      xAxis: {
+        type: 'category',
+        data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
       },
+      yAxis: { type: 'value' },
       series: [
         {
-          name: '善逸',
-          data: [120, 200, 150, 80, 70, 110, 130],
+          name: '新建',
+          data: [5, 8, 3, 6, 9, 2, 4],
           type: 'bar',
-          backgroundStyle: {
-            color: 'rgba(180, 180, 180, 0.2)',
-          },
         },
         {
-          name: '胡克',
-          data: [100, 80, 120, 77, 52, 22, 190],
+          name: '下达',
+          data: [4, 6, 5, 7, 8, 3, 5],
           type: 'bar',
-          backgroundStyle: {
-            color: 'rgba(180, 180, 180, 0.2)',
-          },
         },
         {
-          name: '开云',
-          data: [200, 110, 85, 99, 120, 145, 180],
+          name: '完工',
+          data: [3, 5, 4, 5, 7, 2, 3],
           type: 'bar',
-          backgroundStyle: {
-            color: 'rgba(180, 180, 180, 0.2)',
-          },
-        },
-        {
-          name: '初晓',
-          data: [80, 70, 90, 110, 200, 44, 80],
-          type: 'bar',
-          backgroundStyle: {
-            color: 'rgba(180, 180, 180, 0.2)',
-          },
         },
       ],
     };

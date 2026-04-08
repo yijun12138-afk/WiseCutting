@@ -2,27 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="net.lab1024.sa.admin.module.business.basic.fabric.dao.FabricDao">
 
-    <!-- 分页查询面料 -->
     <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.fabric.domain.vo.FabricVO">
         SELECT f.fabric_id, f.fabric_no, f.fabric_name, f.fabric_type, f.unit_id, f.unit_name,
-               f.gram_weight, f.width, f.remark, f.create_time
+               f.gram_weight, f.width, f.disabled_flag, f.remark, f.create_time
         FROM t_fabric f
         <where>
             f.deleted_flag = 0
-            <if test="queryForm.fabricName != null and queryForm.fabricName != ''">
-                AND INSTR(f.fabric_name, #{queryForm.fabricName})
+            <if test="queryForm.searchWord != null and queryForm.searchWord != ''">
+                AND (INSTR(f.fabric_no, #{queryForm.searchWord}) OR INSTR(f.fabric_name, #{queryForm.searchWord}))
             </if>
-            <if test="queryForm.fabricNo != null and queryForm.fabricNo != ''">
-                AND INSTR(f.fabric_no, #{queryForm.fabricNo})
+            <if test="queryForm.disabledFlag != null">
+                AND f.disabled_flag = #{queryForm.disabledFlag}
             </if>
         </where>
         ORDER BY f.fabric_id DESC
     </select>
 
-    <!-- 查询全部面料 -->
     <select id="queryAll" resultType="net.lab1024.sa.admin.module.business.basic.fabric.domain.vo.FabricVO">
         SELECT f.fabric_id, f.fabric_no, f.fabric_name, f.fabric_type, f.unit_id, f.unit_name,
-               f.gram_weight, f.width, f.remark, f.create_time
+               f.gram_weight, f.width, f.disabled_flag, f.remark, f.create_time
         FROM t_fabric f
         WHERE f.deleted_flag = 0
         ORDER BY f.fabric_id DESC

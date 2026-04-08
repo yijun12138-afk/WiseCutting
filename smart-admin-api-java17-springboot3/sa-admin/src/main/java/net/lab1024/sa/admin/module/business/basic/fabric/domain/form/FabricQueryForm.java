@@ -5,7 +5,7 @@ import net.lab1024.sa.base.common.domain.PageParam;
 
 @Data
 public class FabricQueryForm extends PageParam {
-    private String fabricNo;
-    private String fabricName;
+    private String searchWord;
+    private Boolean disabledFlag;
     private Boolean deletedFlag;
 }

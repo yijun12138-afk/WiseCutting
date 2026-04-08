@@ -2,14 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="net.lab1024.sa.admin.module.business.basic.cuttingpart.dao.CuttingPartDao">
 
-    <!-- 分页查询裁片部位 -->
     <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.cuttingpart.domain.vo.CuttingPartVO">
         SELECT part_id, part_name, part_code, remark, create_time
         FROM t_cutting_part
         <where>
             deleted_flag = 0
-            <if test="queryForm.partName != null and queryForm.partName != ''">
-                AND INSTR(part_name, #{queryForm.partName})
+            <if test="queryForm.searchWord != null and queryForm.searchWord != ''">
+                AND (INSTR(part_name, #{queryForm.searchWord}) OR INSTR(remark, #{queryForm.searchWord}))
             </if>
         </where>
         ORDER BY part_id DESC
