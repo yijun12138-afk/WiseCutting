@@ -17,6 +17,8 @@ let businessOAInitTableId = 30000;
 
 let businessERPInitTableId = 40000;
 
+let businessCuttingTableId = 50000;
+
 export const TABLE_ID_CONST = {
   /**
    * 业务
@@ -32,6 +34,10 @@ export const TABLE_ID_CONST = {
     ERP: {
       GOODS: businessERPInitTableId + 1, //商品管理
     },
+    CUTTING: {
+      CUTTINGPLAN: businessCuttingTableId + 2,
+      CUTTINGORDER: businessCuttingTableId + 3,
+    }
   },
 
   /**

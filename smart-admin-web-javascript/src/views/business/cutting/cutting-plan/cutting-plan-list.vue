@@ -27,24 +27,36 @@
       <div class="smart-table-operate-block">
         <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
       </div>
+      <div class="smart-table-setting-block">
+        <TableOperator v-model="columns" :tableId="TABLE_ID_CONST.BUSINESS.CUTTING.CUTTINGPLAN" :refresh="queryData" />
+      </div>
     </a-row>
-    <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="planId" :pagination="false" bordered>
+    <a-table size="small" :dataSource="tableData" :columns="columns" :loading="tableLoading" rowKey="planId" :pagination="false" :scroll="{ x: 1510 }" bordered>
       <template #bodyCell="{ text, record, column }">
-        <template v-if="column.dataIndex === 'status'">
-          <a-tag :color="statusColor(text)">{{ statusText(text) }}</a-tag>
+        <template v-if="column.dataIndex === 'status'"">
+            <div class="status-cell" :style="{ backgroundColor: statusColor(text) }">
+              {{ statusText(text) }}
+            </div>
         </template>
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="openForm(record)">编辑</a-button>
+            <a-button type="link" v-if="record.status==1" @click="handleIssue(record)">下达</a-button>
+             <a-button type="link" v-if="record.status==2" @click="handleUndo(record)">反下达</a-button>
             <a-button type="link" danger @click="onDelete(record)">删除</a-button>
           </div>
         </template>
       </template>
     </a-table>
     <div class="smart-query-table-page">
-      <a-pagination showSizeChanger showQuickJumper :pageSizeOptions="PAGE_SIZE_OPTIONS"
-        v-model:current="queryForm.pageNum" v-model:pageSize="queryForm.pageSize"
-        :total="total" @change="queryData" :show-total="(t) => `共${t}条`" />
+      <a-pagination showSizeChanger showQuickJumper 
+      :pageSizeOptions="PAGE_SIZE_OPTIONS"
+      v-model:current="queryForm.pageNum" 
+      v-model:pageSize="queryForm.pageSize"
+      :total="total" 
+      @change="queryData" 
+      :show-total="(t) => `共${t}条`"
+      />
     </div>
     <CuttingPlanFormModal ref="formModal" @reload="queryData" />
   </a-card>
@@ -58,43 +70,125 @@ import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
 import { cuttingPlanApi } from '/@/api/business/cutting/cutting-plan-api';
 import CuttingPlanFormModal from './components/cutting-plan-form-modal.vue';
+import { TABLE_ID_CONST } from '/@/constants/support/table-id-const';
+import TableOperator from '/@/components/support/table-operator/index.vue'; 
 import _ from 'lodash';
 
 const columns = [
-  { title: '计划单号', dataIndex: 'planNo', width: 160 },
-  { title: '指令单号', dataIndex: 'orderNo', width: 140 },
-  { title: '客户', dataIndex: 'customerName', width: 120 },
-  { title: '款号', dataIndex: 'styleNo', width: 100 },
-  { title: '款名', dataIndex: 'styleName', width: 120 },
-  { title: '计划日期', dataIndex: 'planDate', width: 110 },
-  { title: '计划数量', dataIndex: 'planQuantity', width: 90 },
-  { title: '实际数量', dataIndex: 'actualQuantity', width: 90 },
-  { title: '状态', dataIndex: 'status', width: 80 },
-  { title: '备注', dataIndex: 'remark', ellipsis: true },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
+  { title: '计划单号', dataIndex: 'planNo', width: 160 ,align:'center'},
+  { title: '指令单号', dataIndex: 'orderNo', width: 140,align:'center' },
+  { title: '客户', dataIndex: 'customerName', width: 120,align:'center' },
+  { title: '款号', dataIndex: 'styleNo', width: 100 ,align:'center'},
+  { title: '款名', dataIndex: 'styleName', width: 120 ,align:'center'},
+  { title: '计划日期', dataIndex: 'planDate', width: 110 ,align:'center'},
+  { title: '计划数量', dataIndex: 'planQuantity', width: 90,align:'center' },
+  { title: '实际数量', dataIndex: 'actualQuantity', width: 90 ,align:'center'},
+  { title: '状态', dataIndex: 'status', width: 80 ,align:'center'},
+  { title: '备注', dataIndex: 'remark', ellipsis: true ,align:'center'},
+  { title: '操作', dataIndex: 'action', fixed: 'right', width: 140,minWidth: 120,align:'center'},
 ];
 
-const queryFormState = { planNo: '', orderNo: '', status: undefined, pageNum: 1, pageSize: 10 };
+
+const queryFormState = { 
+  planNo: '',
+  orderNo: '', 
+  status: undefined, 
+  pageNum: 1, 
+  pageSize: 10
+ };
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);
+const tableLoading = ref(false)
+//状态映射
+function statusText(s) { 
+  return { 1: '计划', 2: '进行中', 3: '完成' }
+  [s] ?? s; 
+}
 
-function statusText(s) { return { 1: '计划', 2: '进行中', 3: '完成' }[s] ?? s; }
-function statusColor(s) { return { 1: 'default', 2: 'blue', 3: 'green' }[s] ?? 'default'; }
-function resetQuery() { Object.assign(queryForm, _.cloneDeep(queryFormState)); queryData(); }
-function onSearch() { queryForm.pageNum = 1; queryData(); }
+//颜色映射
+function statusColor(s) { 
+  return { 1: '#6a9df7', 2: '#d5a451', 3: '#84bf52'}
+  [s] ?? 'default';
+ }
 
+ //重置
+function resetQuery() { 
+  Object.assign(queryForm, _.cloneDeep(queryFormState)); 
+  queryData(); 
+}
+
+//搜索
+function onSearch() { 
+  queryForm.pageNum = 1; 
+  queryData();
+}
+
+//获取查询列表
 async function queryData() {
   try {
+    tableLoading.value = true;
     const res = await cuttingPlanApi.query(queryForm);
     tableData.value = res.data.list;
     total.value = res.data.total;
-  } catch (e) { smartSentry.captureError(e); }
+  } catch (e) { 
+    smartSentry.captureError(e); 
+  } finally {
+      tableLoading.value = false;
+  }
 }
 onMounted(queryData);
 
 const formModal = ref();
-function openForm(row) { formModal.value.show(row); }
+function openForm(row) { 
+  formModal.value.show(row);
+}
+
+//下达功能
+function handleIssue(row){
+   Modal.confirm({
+    title: '提示', content: `确定下达计划单【${row.planNo}】吗?`, okText: '确定', okType: 'primary',
+    onOk: async () => {
+      try {
+        SmartLoading.show(); 
+        await cuttingPlanApi.updateStatus(row.planId,2); 
+        statusText(2)
+        message.success('下达成功'); 
+        queryData();
+      }
+      catch (e) {
+         smartSentry.captureError(e);
+         } finally { 
+          SmartLoading.hide();
+       }
+    },
+  });
+}
+
+
+
+// 反下达功能
+function handleUndo(row){
+   Modal.confirm({
+    title: '提示', content: `确定下达计划单【${row.planNo}】吗?`, okText: '确定', okType: 'primary',
+    onOk: async () => {
+      try {
+        SmartLoading.show(); 
+        await cuttingPlanApi.updateStatus(row.planId, 1); 
+        statusText(1)
+        message.success('下达成功'); 
+        queryData();
+      }
+      catch (e) {
+         smartSentry.captureError(e);
+         } finally { 
+          SmartLoading.hide();
+       }
+    },
+  });
+}
+
+//删除功能
 function onDelete(row) {
   Modal.confirm({
     title: '提示', content: `确定删除计划单【${row.planNo}】吗?`, okText: '删除', okType: 'danger',
@@ -105,3 +199,14 @@ function onDelete(row) {
   });
 }
 </script>
+
+<style scoped>
+  .status-cell {
+   width: 80px;
+   height: 45px;
+   margin: -9px;
+   text-align: center;
+   line-height: 45px;
+   border-bottom: 1.5px solid white;
+  }
+</style>

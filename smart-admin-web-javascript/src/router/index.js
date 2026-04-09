@@ -103,29 +103,29 @@ export function buildRoutes(menuRouterList) {
    */
   const routerList = [];
   // 获取所有vue组件引用地址 用于构建路由
-const rawModules = import.meta.glob('../views/**/*.vue');
-const modules = new Proxy(rawModules, {
-  get(target, prop, receiver) {
-    if (typeof prop !== 'string') {
-      return Reflect.get(target, prop, receiver);
-    }
+  const rawModules = import.meta.glob('../views/**/*.vue');
+  const modules = new Proxy(rawModules, {
+    get(target, prop, receiver) {
+      if (typeof prop !== 'string') {
+        return Reflect.get(target, prop, receiver);
+      }
 
-    const directMatch = Reflect.get(target, prop, receiver);
-    if (directMatch) {
-      return directMatch;
-    }
+      const directMatch = Reflect.get(target, prop, receiver);
+      if (directMatch) {
+        return directMatch;
+      }
 
-    const normalizedPath = prop.endsWith('.vue') ? prop : `${prop}.vue`;
-    const normalizedMatch = Reflect.get(target, normalizedPath, receiver);
-    if (!normalizedMatch) {
-      console.error(`[dynamic-router] Failed to resolve component module: ${prop}`);
+      const normalizedPath = prop.endsWith('.vue') ? prop : `${prop}.vue`;
+      const normalizedMatch = Reflect.get(target, normalizedPath, receiver);
+      if (!normalizedMatch) {
+        console.error(`[dynamic-router] Failed to resolve component module: ${prop}`);
+        return normalizedMatch;
+      }
+
+      console.warn(`[dynamic-router] Auto-normalized component path "${prop}" -> "${normalizedPath}"`);
       return normalizedMatch;
-    }
-
-    console.warn(`[dynamic-router] Auto-normalized component path "${prop}" -> "${normalizedPath}"`);
-    return normalizedMatch;
-  },
-});
+    },
+  });
   // 获取所有vue组件 用于注入name属性 name属性用于keep-alive
 
   //1、构建整个路由信息
@@ -139,6 +139,10 @@ const modules = new Proxy(rawModules, {
     if (e.deletedFlag && e.deletedFlag === true) {
       continue;
     }
+
+
+    if (!e.component || e.component === 'NULL' || e.component.trim() === '') continue;
+
     let route = {
       path: e.path.startsWith('/') ? e.path : `/${e.path}`,
       // 使用【menuId】作为name唯一标识
@@ -174,17 +178,18 @@ const modules = new Proxy(rawModules, {
 
       if (!route.component) {
         console.error('路由组件未找到:', e.component, relativePath);
-}
+        continue;
+      }
+      routerList.push(route);
+      routerMap.set(e.menuId.toString(), route);
     }
-    routerList.push(route);
-    routerMap.set(e.menuId.toString(), route);
-  }
 
-  //2、添加到路由里
-  router.addRoute({
-    path: '/',
-    meta: {},
-    component: SmartLayout,
-    children: routerList,
-  });
+    //2、添加到路由里
+    router.addRoute({
+      path: '/',
+      meta: {},
+      component: SmartLayout,
+      children: routerList,
+    });
+  }
 }
