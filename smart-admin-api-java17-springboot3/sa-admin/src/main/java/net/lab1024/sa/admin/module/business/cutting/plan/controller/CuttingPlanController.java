@@ -36,4 +36,10 @@ public class CuttingPlanController {
     public ResponseDTO<String> delete(@PathVariable Long planId) {
         return cuttingPlanService.delete(planId);
     }
+
+    @Operation(summary = "更新裁剪计划状态")
+    @PostMapping("/cutting/plan/updateStatus")
+    public ResponseDTO<String> updateStatus(@RequestParam Long planId, @RequestParam Integer status) {
+        return cuttingPlanService.updateStatus(planId, status);
+    }
 }

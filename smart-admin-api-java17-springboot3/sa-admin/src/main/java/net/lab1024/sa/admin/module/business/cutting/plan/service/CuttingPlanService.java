@@ -50,19 +50,50 @@ public class CuttingPlanService {
     @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> delete(Long planId) {
         CuttingPlanEntity entity = cuttingPlanDao.selectById(planId);
-        if (entity == null) return ResponseDTO.userErrorParam("裁剪计划不存在");
+        if (entity == null)
+            return ResponseDTO.userErrorParam("裁剪计划不存在");
         entity.setDeletedFlag(Boolean.TRUE);
         cuttingPlanDao.updateById(entity);
         return ResponseDTO.ok();
     }
 
     private String getStatusName(Integer status) {
-        if (status == null) return "";
+        if (status == null)
+            return "";
         return switch (status) {
             case 1 -> "计划";
             case 2 -> "进行中";
             case 3 -> "完成";
             default -> "";
         };
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> updateStatus(Long planId, Integer status) {
+        CuttingPlanEntity entity = cuttingPlanDao.selectById(planId);
+        if (entity == null)
+            return ResponseDTO.userErrorParam("裁剪计划不存在");
+
+        // 验证状态变更的合法性
+        if (status == 1) { // 反下达
+            if (entity.getStatus() != 2) {
+                return ResponseDTO.userErrorParam("只有进行中的计划可以反下达");
+            }
+            entity.setActualQuantity(0); // 重置实际数量
+        } else if (status == 2) { // 下达
+            if (entity.getStatus() != 1) {
+                return ResponseDTO.userErrorParam("只有计划状态的计划可以下达");
+            }
+        } else if (status == 3) { // 完成
+            if (entity.getStatus() != 2) {
+                return ResponseDTO.userErrorParam("只有进行中的计划可以标记为完成");
+            }
+        } else {
+            return ResponseDTO.userErrorParam("无效的状态值");
+        }
+
+        entity.setStatus(status);
+        cuttingPlanDao.updateById(entity);
+        return ResponseDTO.ok();
     }
 }

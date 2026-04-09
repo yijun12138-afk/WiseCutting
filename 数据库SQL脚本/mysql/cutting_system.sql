@@ -422,7 +422,7 @@ ALTER TABLE `t_menu` AUTO_INCREMENT = 10001;
 INSERT INTO `t_menu` (`menu_id`,`menu_name`,`menu_type`,`parent_id`,`sort`,`path`,`component`,`perms_type`,`api_perms`,`web_perms`,`icon`,`context_menu_id`,`frame_flag`,`frame_url`,`cache_flag`,`visible_flag`,`disabled_flag`,`deleted_flag`,`create_user_id`,`create_time`,`update_user_id`,`update_time`)
 VALUES
 -- ===================== 生产管理 =====================
-(10001,'生产管理',1,0,1,'/production',NULL,NULL,NULL,NULL,'ToolOutlined',NULL,0,NULL,0,1,0,0,1,NOW(),1,NOW()),
+(10001,'生产管理',1,0,1,'/production','NULL',NULL,NULL,NULL,'ToolOutlined',NULL,0,NULL,0,1,0,0,1,NOW(),1,NOW()),
 (10002,'生产制单',2,10001,1,'/production/order','business/cutting/production/order/order-list',NULL,NULL,NULL,'FileTextOutlined',NULL,0,NULL,1,1,0,0,1,NOW(),1,NOW()),
 
 -- ===================== 裁剪数据 =====================
