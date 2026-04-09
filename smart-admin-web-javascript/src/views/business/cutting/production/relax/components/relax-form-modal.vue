@@ -16,20 +16,30 @@
           <a-select-option v-for="c in colorList" :key="c.colorName" :value="c.colorName">{{ c.colorName }}</a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="需求长度(m)" name="requireLength">
-        <a-input-number style="width:100%" v-model:value="form.requireLength" :min="0" :precision="2" placeholder="需求长度" />
+      <a-form-item label="需求卷数" name="requireLength">
+        <a-input-number style="width:100%" v-model:value="form.requireLength" :min="0" :precision="0" placeholder="需求卷数" />
       </a-form-item>
-      <a-form-item label="实际长度(m)" name="actualLength">
-        <a-input-number style="width:100%" v-model:value="form.actualLength" :min="0" :precision="2" placeholder="实际长度" />
+      <a-form-item label="实际卷数" name="actualLength">
+        <a-input-number style="width:100%" v-model:value="form.actualLength" :min="0" :precision="0" placeholder="实际卷数" />
       </a-form-item>
       <a-form-item label="松布时长(h)" name="relaxHours">
         <a-input-number style="width:100%" v-model:value="form.relaxHours" :min="0" :precision="1" placeholder="松布时长" />
       </a-form-item>
+      <a-form-item label="松布时间" name="relaxTime">
+        <a-date-picker show-time style="width:100%" v-model:value="form.relaxTime" placeholder="请选择松布时间" valueFormat="YYYY-MM-DD HH:mm:ss" />
+      </a-form-item>
+      <a-form-item label="实际开始时间" name="actualStartTime">
+        <a-date-picker show-time style="width:100%" v-model:value="form.actualStartTime" placeholder="请选择实际开始时间" valueFormat="YYYY-MM-DD HH:mm:ss" />
+      </a-form-item>
+      <a-form-item label="实际结束时间" name="actualEndTime">
+        <a-date-picker show-time style="width:100%" v-model:value="form.actualEndTime" placeholder="请选择实际结束时间" valueFormat="YYYY-MM-DD HH:mm:ss" />
+      </a-form-item>
       <a-form-item label="状态" name="status">
         <a-select v-model:value="form.status" style="width:100%">
-          <a-select-option :value="0">计划</a-select-option>
+          <a-select-option :value="0">未开始</a-select-option>
           <a-select-option :value="1">进行中</a-select-option>
-          <a-select-option :value="2">完成</a-select-option>
+          <a-select-option :value="2">静置完成</a-select-option>
+          <a-select-option :value="3">已结束</a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item label="备注" name="remark">
@@ -58,6 +68,7 @@ const formDefault = {
   relaxId: undefined, orderId: undefined, orderNo: '',
   fabricId: undefined, fabricNo: '', fabricName: '', colorName: '',
   requireLength: undefined, actualLength: undefined, relaxHours: undefined,
+  relaxTime: undefined, actualStartTime: undefined, actualEndTime: undefined,
   status: 0, remark: '',
 };
 const form = reactive({ ...formDefault });

@@ -51,6 +51,19 @@ public class FabricRelaxService {
         return ResponseDTO.ok();
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> batchDelete(List<Long> relaxIds) {
+        if (relaxIds == null || relaxIds.isEmpty()) return ResponseDTO.userErrorParam("请选择要删除的任务");
+        for (Long relaxId : relaxIds) {
+            FabricRelaxEntity entity = fabricRelaxDao.selectById(relaxId);
+            if (entity != null) {
+                entity.setDeletedFlag(Boolean.TRUE);
+                fabricRelaxDao.updateById(entity);
+            }
+        }
+        return ResponseDTO.ok();
+    }
+
     private String getStatusName(Integer status) {
         if (status == null) return "";
         return switch (status) {
