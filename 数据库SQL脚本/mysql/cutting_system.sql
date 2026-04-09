@@ -648,3 +648,9 @@ INSERT INTO `t_role_menu` (`role_id`, `menu_id`)
 SELECT 1, menu_id FROM `t_menu` WHERE deleted_flag = 0;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- =====================================================
+-- 更新系统基础数据
+-- =====================================================
+-- 将根部门名称更新为"裁匠实验室"
+UPDATE `t_department` SET `department_name` = '裁匠实验室' WHERE `department_id` = 1;

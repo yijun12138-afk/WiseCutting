@@ -177,7 +177,7 @@ CREATE TABLE `t_department`  (
 -- ----------------------------
 -- Records of t_department
 -- ----------------------------
-INSERT INTO `t_department` VALUES (1, '1024创新实验室', 1, 0, 1, '2022-10-19 20:17:09', '2022-10-19 20:17:09');
+INSERT INTO `t_department` VALUES (1, '裁匠实验室', 1, 0, 1, '2022-10-19 20:17:09', '2022-10-19 20:17:09');
 INSERT INTO `t_department` VALUES (2, '开发部', 44, 1, 1000, '2022-10-19 20:22:23', '2022-10-19 20:22:23');
 INSERT INTO `t_department` VALUES (3, '产品部', 2, 1, 99, '2022-10-21 10:25:30', '2022-10-21 10:25:30');
 INSERT INTO `t_department` VALUES (4, '销售部', 64, 1, 9, '2022-10-21 10:25:47', '2022-10-21 10:25:47');

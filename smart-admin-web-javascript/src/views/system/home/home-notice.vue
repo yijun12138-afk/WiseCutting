@@ -1,18 +1,15 @@
 <!--
   * 首页的 通知公告
-  * 
-  * @Author:    1024创新实验室-主任：卓大 
-  * @Date:      2022-09-12 22:34:00 
-  * @Wechat:    zhuda1024 
-  * @Email:     lab1024@163.com 
-  * @Copyright  1024创新实验室 （ https://1024lab.net ），Since 2012 
+  *
+  * @Author:    裁匠实验室
+  * @Date:      2024-04-09
   *
 -->
 <template>
   <default-home-card extra="更多" icon="SoundOutlined" title="通知公告" @extraClick="onMore">
     <a-spin :spinning="loading">
       <div class="content-wrapper">
-        <a-empty v-if="$lodash.isEmpty(data)" />
+        <a-empty v-if="$lodash.isEmpty(data)" description="暂无通知" />
         <ul v-else>
           <li v-for="(item, index) in data" :key="index" :class="[item.viewFlag ? 'read' : 'un-read']">
             <a-tooltip placement="top">
@@ -20,17 +17,18 @@
                 <span>{{ item.title }}</span>
               </template>
               <a class="content" @click="toDetail(item.noticeId)">
-                <a-badge :status="item.viewFlag ? 'default' : 'error'" />
+                <span class="dot" :class="{ unread: !item.viewFlag }"></span>
                 {{ item.title }}
               </a>
             </a-tooltip>
-            <span class="time"> {{ item.publishDate }}</span>
+            <span class="time">{{ item.publishDate }}</span>
           </li>
         </ul>
       </div>
     </a-spin>
   </default-home-card>
 </template>
+
 <script setup>
   import { onMounted, ref } from 'vue';
   import { useRouter } from 'vue-router';
@@ -48,14 +46,13 @@
   const queryForm = {
     noticeTypeId: props.noticeTypeId,
     pageNum: 1,
-    pageSize: 6,
+    pageSize: 8,
     searchCount: false,
   };
 
   let data = ref([]);
-
   const loading = ref(false);
-  // 查询列表
+
   async function queryNoticeList() {
     try {
       loading.value = true;
@@ -72,50 +69,87 @@
     queryNoticeList();
   });
 
-  // 查看更多
+  const router = useRouter();
+
   function onMore() {
-    router.push({
-      path: '/oa/notice/notice-employee-list',
-    });
+    router.push({ path: '/oa/notice/notice-employee-list' });
   }
 
-  // 进入详情
-  const router = useRouter();
   function toDetail(noticeId) {
-    router.push({
-      path: '/oa/notice/notice-employee-detail',
-      query: { noticeId },
-    });
+    router.push({ path: '/oa/notice/notice-employee-detail', query: { noticeId } });
   }
 </script>
+
 <style lang="less" scoped>
-  @read-color: #666;
   .content-wrapper {
-    height: 150px;
-    overflow-y: hidden;
+    min-height: 160px;
+    max-height: 220px;
+    overflow-y: auto;
     overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #e0e0e0;
+      border-radius: 4px;
+    }
   }
+
+  ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
   ul li {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 4px;
+    align-items: center;
+    padding: 7px 6px;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #f8f8ff;
+    }
 
     .content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
       word-break: break-all;
-      margin-right: 5px;
+      margin-right: 8px;
+      font-size: 13px;
+
+      .dot {
+        flex-shrink: 0;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #d9d9d9;
+
+        &.unread {
+          background: #ef4444;
+          box-shadow: 0 0 4px rgba(239, 68, 68, 0.5);
+        }
+      }
     }
 
     .time {
       flex-shrink: 0;
-      color: @read-color;
+      color: #bbb;
+      font-size: 11px;
       min-width: 75px;
+      text-align: right;
     }
   }
 
-  .read a {
-    color: @read-color !important;
+  .read .content {
+    color: #aaa;
   }
 </style>
