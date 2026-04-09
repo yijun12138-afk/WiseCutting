@@ -30,7 +30,7 @@
   import { computed, nextTick, ref, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import RecursionMenu from './recursion-menu.vue';
-  import logoImg from '/@/assets/images/logo/smart-admin-logo.png';
+  import logoImg from '/@/assets/images/logo/mylogo4.png';
   import { HOME_PAGE_NAME } from '/@/constants/system/home-const';
   import { useAppConfigStore } from '/@/store/modules/system/app-config';
 
@@ -110,8 +110,9 @@
       align-items: center;
 
       .logo-img {
-        width: 30px;
-        height: 30px;
+        width: 120px;
+        height: 140px;
+        margin: 10px -40px 0px -90px;
       }
 
       .title {
@@ -121,9 +122,13 @@
       }
       .title-light {
         color: #001529;
+        font-size: 20px;
+        margin-top: 6px;
       }
       .title-dark {
         color: #ffffff;
+        font-size: 20px;
+        margin-top: 6px;
       }
     }
   }

@@ -12,15 +12,14 @@
   <div class="login-container">
     <div class="box-item desc">
       <div class="welcome">
-        <p>欢迎登录 SmartAdmin V3</p>
-        <p class="sub-welcome">「高质量代码、简洁、安全」的开发平台</p>
       </div>
     </div>
     <div class="box-item login">
       <img class="login-qr" :src="loginQR" />
       <div class="login-title">账号登录</div>
       <a-form ref="formRef" class="login-form" :model="loginForm" :rules="rules">
-        <a-form-item name="loginName">
+        <a-form-item name="loginName" style="color:#cdcfd1">
+          用户名：
           <a-input v-model:value.trim="loginForm.loginName" placeholder="请输入用户名" />
         </a-form-item>
         <a-form-item name="emailCode" v-if="emailCodeShowFlag">
@@ -31,7 +30,8 @@
             </a-button>
           </a-input-group>
         </a-form-item>
-        <a-form-item name="password">
+        <a-form-item name="password" style="color:#cdcfd1">
+          密码：
           <a-input-password
             v-model:value="loginForm.password"
             autocomplete="on"
@@ -39,13 +39,14 @@
             placeholder="请输入密码"
           />
         </a-form-item>
-        <a-form-item name="captchaCode">
+        <a-form-item name="captchaCode" style="color:#cdcfd1">
+          <div>验证码：</div>
           <a-input class="captcha-input" v-model:value.trim="loginForm.captchaCode" placeholder="请输入验证码" />
           <img class="captcha-img" :src="captchaBase64Image" @click="getCaptcha" />
         </a-form-item>
         <a-form-item>
           <a-checkbox v-model:checked="rememberPwd">记住密码</a-checkbox>
-          <span> ( 账号：admin, 密码：123456)</span>
+          <span style="color:#cdcfd1;font-size:12px"> ( 账号：admin, 密码：123456)</span>
         </a-form-item>
         <a-form-item>
           <div class="btn" @click="onLogin">登录</div>
@@ -60,9 +61,6 @@
         <div class="login-type">
           <img :src="wechatIcon" />
           <img :src="aliIcon" />
-          <img :src="douyinIcon" />
-          <img :src="qqIcon" />
-          <img :src="weiboIcon" />
           <img :src="feishuIcon" />
           <img :src="googleIcon" />
         </div>
@@ -81,9 +79,6 @@
   import loginQR from '/@/assets/images/login/login-qr.png';
   import wechatIcon from '/@/assets/images/login/wechat-icon.png';
   import aliIcon from '/@/assets/images/login/ali-icon.png';
-  import douyinIcon from '/@/assets/images/login/douyin-icon.png';
-  import qqIcon from '/@/assets/images/login/qq-icon.png';
-  import weiboIcon from '/@/assets/images/login/weibo-icon.png';
   import feishuIcon from '/@/assets/images/login/feishu-icon.png';
   import googleIcon from '/@/assets/images/login/google-icon.png';
 
