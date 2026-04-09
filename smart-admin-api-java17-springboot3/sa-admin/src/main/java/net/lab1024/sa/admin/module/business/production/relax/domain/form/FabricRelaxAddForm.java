@@ -15,6 +15,10 @@ public class FabricRelaxAddForm {
     private BigDecimal requireLength;
     private BigDecimal actualLength;
     private BigDecimal relaxHours;
+    private String customerName;
+    private java.time.LocalDateTime relaxTime;
+    private java.time.LocalDateTime actualStartTime;
+    private java.time.LocalDateTime actualEndTime;
     private Integer status;
     private String remark;
 }

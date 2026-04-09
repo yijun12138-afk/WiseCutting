@@ -4,20 +4,23 @@
 
     <!-- 分页查询松布任务 -->
     <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.production.relax.domain.vo.FabricRelaxVO">
-        SELECT relax_id, order_id, order_no, fabric_id, fabric_no, fabric_name,
-               color_name, require_length, actual_length, relax_hours, status,
-               remark, create_user_name, create_time
-        FROM t_fabric_relax
+        SELECT r.relax_id, r.order_id, r.order_no, r.fabric_id, r.fabric_no, r.fabric_name,
+               r.color_name, r.require_length, r.actual_length, r.relax_hours, r.status,
+               r.remark, r.create_user_name, r.create_time,
+               r.relax_time, r.actual_start_time, r.actual_end_time,
+               o.customer_name
+        FROM t_fabric_relax r
+        LEFT JOIN t_production_order o ON r.order_id = o.order_id
         <where>
-            deleted_flag = 0
+            r.deleted_flag = 0
             <if test="queryForm.orderNo != null and queryForm.orderNo != ''">
-                AND INSTR(order_no, #{queryForm.orderNo})
+                AND INSTR(r.order_no, #{queryForm.orderNo})
             </if>
             <if test="queryForm.status != null">
-                AND status = #{queryForm.status}
+                AND r.status = #{queryForm.status}
             </if>
         </where>
-        ORDER BY relax_id DESC
+        ORDER BY r.relax_id DESC
     </select>
 
 </mapper>

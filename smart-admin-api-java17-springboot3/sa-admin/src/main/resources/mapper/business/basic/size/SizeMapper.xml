@@ -2,20 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="net.lab1024.sa.admin.module.business.basic.size.dao.SizeDao">
 
-    <!-- 分页查询尺寸 -->
     <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.size.domain.vo.SizeVO">
         SELECT size_id, size_name, sort, remark, create_time
         FROM t_size
         <where>
             deleted_flag = 0
-            <if test="queryForm.sizeName != null and queryForm.sizeName != ''">
-                AND INSTR(size_name, #{queryForm.sizeName})
+            <if test="queryForm.searchWord != null and queryForm.searchWord != ''">
+                AND (INSTR(size_name, #{queryForm.searchWord}) OR INSTR(remark, #{queryForm.searchWord}))
             </if>
         </where>
         ORDER BY sort ASC, size_id DESC
     </select>
 
-    <!-- 查询全部尺寸 -->
     <select id="queryAll" resultType="net.lab1024.sa.admin.module.business.basic.size.domain.vo.SizeVO">
         SELECT size_id, size_name, sort, remark, create_time
         FROM t_size

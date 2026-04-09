@@ -1,8 +1,8 @@
 <template>
   <a-form class="smart-query-form">
     <a-row class="smart-query-form-row">
-      <a-form-item label="尺寸名称" class="smart-query-form-item">
-        <a-input style="width:200px" v-model:value="queryForm.sizeName" placeholder="尺寸名称" />
+      <a-form-item label="关键字" class="smart-query-form-item">
+        <a-input style="width:200px" v-model:value="queryForm.searchWord" placeholder="尺码名称/备注" />
       </a-form-item>
       <a-form-item class="smart-query-form-item">
         <a-button-group>
@@ -48,13 +48,11 @@ import SizeFormModal from './components/size-form-modal.vue';
 import _ from 'lodash';
 
 const columns = ref([
-  { title: '尺寸名称', dataIndex: 'sizeName', width: 150 },
-  { title: '排序', dataIndex: 'sort', width: 80 },
+  { title: '尺码', dataIndex: 'sizeName', width: 150 },
   { title: '备注', dataIndex: 'remark', ellipsis: true, width: 200 },
-  { title: '创建时间', dataIndex: 'createTime', width: 160 },
   { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
 ]);
-const queryFormState = { sizeName: '', pageNum: 1, pageSize: 10 };
+const queryFormState = { searchWord: '', pageNum: 1, pageSize: 10 };
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);

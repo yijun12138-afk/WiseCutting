@@ -27,11 +27,20 @@
       <div class="smart-table-operate-block">
         <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
       </div>
+       <div class="smart-table-setting-block">
+        <TableOperator v-model="columns" :tableId="TABLE_ID_CONST.BUSINESS.CUTTING.CUTTINGORDER" :refresh="queryData" />
+      </div>
     </a-row>
-    <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="cuttingOrderId" :pagination="false" bordered>
+    <a-table 
+       size="small" 
+      :dataSource="tableData" 
+      :columns="columns" 
+      :loading="tableLoading"
+      rowKey="cuttingOrderId" 
+      :pagination="false" bordered>
       <template #bodyCell="{ text, record, column }">
         <template v-if="column.dataIndex === 'status'">
-          <a-tag :color="statusColor(text)">{{ statusText(text) }}</a-tag>
+          <a-tag :color="statusColor(text)" class="custom-tag">{{ statusText(text) }}</a-tag>
         </template>
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
@@ -42,11 +51,17 @@
       </template>
     </a-table>
     <div class="smart-query-table-page">
-      <a-pagination showSizeChanger showQuickJumper :pageSizeOptions="PAGE_SIZE_OPTIONS"
-        v-model:current="queryForm.pageNum" v-model:pageSize="queryForm.pageSize"
-        :total="total" @change="queryData" :show-total="(t) => `共${t}条`" />
+      <a-pagination showSizeChanger showQuickJumper 
+      :pageSizeOptions="PAGE_SIZE_OPTIONS"
+      v-model:current="queryForm.pageNum"
+      v-model:pageSize="queryForm.pageSize"
+      :total="total"
+      @change="queryData" 
+      :show-total="(t) => `共${t}条`"
+      />
     </div>
     <CuttingOrderFormModal ref="formModal" @reload="queryData" />
+
   </a-card>
 </template>
 <script setup>
@@ -58,8 +73,9 @@ import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
 import { cuttingOrderApi } from '/@/api/business/cutting/cutting-order-api';
 import CuttingOrderFormModal from './components/cutting-order-form-modal.vue';
+import { TABLE_ID_CONST } from '/@/constants/support/table-id-const';
+import TableOperator from '/@/components/support/table-operator/index.vue';
 import _ from 'lodash';
-
 const columns = [
   { title: '裁床单号', dataIndex: 'cuttingOrderNo', width: 160 },
   { title: '指令单号', dataIndex: 'orderNo', width: 140 },
@@ -79,23 +95,43 @@ const queryFormState = { cuttingOrderNo: '', orderNo: '', status: undefined, pag
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);
+const tableLoading = ref(false)
 
-function statusText(s) { return { 1: '待裁', 2: '裁剪中', 3: '完成' }[s] ?? s; }
-function statusColor(s) { return { 1: 'default', 2: 'blue', 3: 'green' }[s] ?? 'default'; }
-function resetQuery() { Object.assign(queryForm, _.cloneDeep(queryFormState)); queryData(); }
+function statusText(s) { 
+  return { 1: '待裁', 2: '裁剪中', 3: '完成' }
+  [s] ?? s; 
+}
+function statusColor(s) { 
+  return { 1: 'gray', 2: '#2196F3', 3: '#81C784' }
+  [s] ?? 'default'; 
+}
+function resetQuery() { 
+  Object.assign(queryForm, _.cloneDeep(queryFormState));
+  queryData(); 
+}
+
 function onSearch() { queryForm.pageNum = 1; queryData(); }
 
 async function queryData() {
   try {
+    tableLoading.value = true
     const res = await cuttingOrderApi.query(queryForm);
     tableData.value = res.data.list;
     total.value = res.data.total;
-  } catch (e) { smartSentry.captureError(e); }
+  } catch (e)
+   { 
+    smartSentry.captureError(e); 
+  } finally {
+      tableLoading.value = false;
+  }
 }
 onMounted(queryData);
 
 const formModal = ref();
-function openForm(row) { formModal.value.show(row); }
+function openForm(row) { 
+  formModal.value.show(row);
+}
+
 function onDelete(row) {
   Modal.confirm({
     title: '提示', content: `确定删除裁床单【${row.cuttingOrderNo}】吗?`, okText: '删除', okType: 'danger',
@@ -106,3 +142,10 @@ function onDelete(row) {
   });
 }
 </script>
+<style scoped>
+.custom-tag {
+  font-size: 16px; /* 增大字体大小 */
+  padding: 4px 10px; /* 增大内边距 */
+  border-radius: 4px; /* 保持圆角效果 */
+}
+</style>

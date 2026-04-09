@@ -12,6 +12,7 @@ import net.lab1024.sa.admin.module.business.production.relax.service.FabricRelax
 import net.lab1024.sa.base.common.domain.PageResult;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @Tag(name = "生产管理-松布管理")
@@ -39,5 +40,12 @@ public class FabricRelaxController {
     @SaCheckPermission("production:relax:query")
     public ResponseDTO<String> delete(@PathVariable Long relaxId) {
         return fabricRelaxService.delete(relaxId);
+    }
+
+    @Operation(summary = "批量删除松布任务")
+    @PostMapping("/production/relax/batchDelete")
+    @SaCheckPermission("production:relax:query")
+    public ResponseDTO<String> batchDelete(@RequestBody List<Long> relaxIds) {
+        return fabricRelaxService.batchDelete(relaxIds);
     }
 }

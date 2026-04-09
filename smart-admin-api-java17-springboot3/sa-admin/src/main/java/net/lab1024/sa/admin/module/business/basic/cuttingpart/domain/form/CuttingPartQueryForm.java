@@ -5,6 +5,6 @@ import net.lab1024.sa.base.common.domain.PageParam;
 
 @Data
 public class CuttingPartQueryForm extends PageParam {
-    private String partName;
+    private String searchWord;
     private Boolean deletedFlag;
 }

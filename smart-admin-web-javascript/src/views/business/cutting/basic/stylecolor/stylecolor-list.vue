@@ -1,11 +1,8 @@
 <template>
   <a-form class="smart-query-form">
     <a-row class="smart-query-form-row">
-      <a-form-item label="款号" class="smart-query-form-item">
-        <a-input style="width:150px" v-model:value="queryForm.styleNo" placeholder="款号" />
-      </a-form-item>
-      <a-form-item label="颜色名称" class="smart-query-form-item">
-        <a-input style="width:150px" v-model:value="queryForm.colorName" placeholder="颜色名称" />
+      <a-form-item label="关键字" class="smart-query-form-item">
+        <a-input style="width:200px" v-model:value="queryForm.searchWord" placeholder="颜色名称/备注" />
       </a-form-item>
       <a-form-item class="smart-query-form-item">
         <a-button-group>
@@ -51,15 +48,14 @@ import StyleColorFormModal from './components/stylecolor-form-modal.vue';
 import _ from 'lodash';
 
 const columns = ref([
-  { title: '款号', dataIndex: 'styleNo', width: 150 },
   { title: '颜色名称', dataIndex: 'colorName', width: 150 },
-  { title: '颜色代码', dataIndex: 'colorCode', width: 120 },
-  { title: '备注', dataIndex: 'remark', ellipsis: true, width: 200 },
   { title: '创建时间', dataIndex: 'createTime', width: 160 },
+  { title: '创建人', dataIndex: 'createUserName', width: 100 },
+  { title: '备注', dataIndex: 'remark', ellipsis: true, width: 200 },
   { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
 ]);
 
-const queryFormState = { styleNo: '', colorName: '', pageNum: 1, pageSize: 10 };
+const queryFormState = { searchWord: '', pageNum: 1, pageSize: 10 };
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);

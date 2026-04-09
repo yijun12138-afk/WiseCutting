@@ -5,7 +5,6 @@ import net.lab1024.sa.base.common.domain.PageParam;
 
 @Data
 public class StyleColorQueryForm extends PageParam {
-    private String styleNo;
-    private String colorName;
+    private String searchWord;
     private Boolean deletedFlag;
 }

@@ -1,11 +1,14 @@
 <template>
   <a-form class="smart-query-form">
     <a-row class="smart-query-form-row">
-      <a-form-item label="成衣编号" class="smart-query-form-item">
-        <a-input style="width:150px" v-model:value="queryForm.garmentNo" placeholder="成衣编号" />
+      <a-form-item label="关键字" class="smart-query-form-item">
+        <a-input style="width:150px" v-model:value="queryForm.searchWord" placeholder="成衣名称/编号" />
       </a-form-item>
-      <a-form-item label="成衣名称" class="smart-query-form-item">
-        <a-input style="width:150px" v-model:value="queryForm.garmentName" placeholder="成衣名称" />
+      <a-form-item label="停用标识" class="smart-query-form-item">
+        <a-select style="width:120px" v-model:value="queryForm.disabledFlag" placeholder="全部" allowClear>
+          <a-select-option :value="false">正常</a-select-option>
+          <a-select-option :value="true">停用</a-select-option>
+        </a-select>
       </a-form-item>
       <a-form-item class="smart-query-form-item">
         <a-button-group>
@@ -22,7 +25,10 @@
       </div>
     </a-row>
     <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="garmentId" :pagination="false" bordered>
-      <template #bodyCell="{ record, column }">
+      <template #bodyCell="{ text, record, column }">
+        <template v-if="column.dataIndex === 'disabledFlag'">
+          <a-tag :color="text ? 'red' : 'green'">{{ text ? '停用' : '正常' }}</a-tag>
+        </template>
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="openForm(record)">编辑</a-button>
@@ -51,15 +57,17 @@ import GarmentFormModal from './components/garment-form-modal.vue';
 import _ from 'lodash';
 
 const columns = ref([
-  { title: '成衣编号', dataIndex: 'garmentNo', width: 130 },
-  { title: '成衣名称', dataIndex: 'garmentName', width: 150 },
-  { title: '成衣类型', dataIndex: 'garmentType', width: 100 },
+  { title: '物料编号', dataIndex: 'garmentNo', width: 130 },
+  { title: '物料名称', dataIndex: 'garmentName', width: 150 },
+  { title: '规格型号', dataIndex: 'garmentType', width: 100 },
   { title: '单位', dataIndex: 'unitName', width: 80 },
-  { title: '备注', dataIndex: 'remark', ellipsis: true, width: 200 },
-  { title: '创建时间', dataIndex: 'createTime', width: 160 },
+  { title: '颜色', dataIndex: 'colorDisplay', width: 120 },
+  { title: '尺码', dataIndex: 'sizeDisplay', width: 120 },
+  { title: '价格', dataIndex: 'priceDisplay', width: 90 },
+  { title: '停用标识', dataIndex: 'disabledFlag', width: 90 },
   { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
 ]);
-const queryFormState = { garmentNo: '', garmentName: '', pageNum: 1, pageSize: 10 };
+const queryFormState = { searchWord: '', disabledFlag: undefined, pageNum: 1, pageSize: 10 };
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);
@@ -67,8 +75,24 @@ const total = ref(0);
 function resetQuery() { Object.assign(queryForm, _.cloneDeep(queryFormState)); queryData(); }
 function onSearch() { queryForm.pageNum = 1; queryData(); }
 async function queryData() {
-  try { const res = await garmentApi.query(queryForm); tableData.value = res.data.list; total.value = res.data.total; }
-  catch (e) { smartSentry.captureError(e); }
+  try {
+    const res = await garmentApi.query(queryForm);
+    const list = res.data.list || [];
+    list.forEach(item => {
+      if (item.skuList && item.skuList.length > 0) {
+        item.colorDisplay = [...new Set(item.skuList.map(s => s.colorName).filter(Boolean))].join('、');
+        item.sizeDisplay = [...new Set(item.skuList.map(s => s.sizeName).filter(Boolean))].join('、');
+        const prices = item.skuList.map(s => s.price).filter(p => p != null);
+        item.priceDisplay = prices.length > 0 ? prices[0] : '-';
+      } else {
+        item.colorDisplay = '-';
+        item.sizeDisplay = '-';
+        item.priceDisplay = '-';
+      }
+    });
+    tableData.value = list;
+    total.value = res.data.total;
+  } catch (e) { smartSentry.captureError(e); }
 }
 onMounted(queryData);
 const formModal = ref();

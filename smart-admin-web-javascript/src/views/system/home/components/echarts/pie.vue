@@ -1,5 +1,5 @@
 <template>
-  <default-home-card icon="PieChartOutlined" title="加班统计">
+  <default-home-card icon="PieChartOutlined" title="指令单优先级占比">
     <div class="echarts-box">
       <div class="pie-main" id="pie-main"></div>
     </div>
@@ -25,7 +25,7 @@
       },
       series: [
         {
-          name: '加班次数',
+          name: '指令单优先级',
           type: 'pie',
           radius: ['40%', '70%'],
           avoidLabelOverlap: false,
@@ -49,10 +49,10 @@
             show: false,
           },
           data: [
-            { value: 10, name: '初晓' },
-            { value: 8, name: '善逸' },
-            { value: 3, name: '胡克' },
-            { value: 1, name: '罗伊' },
+            { value: 12, name: '紧急' },
+            { value: 28, name: '高优先级' },
+            { value: 45, name: '普通' },
+            { value: 15, name: '低优先级' },
           ],
         },
       ],

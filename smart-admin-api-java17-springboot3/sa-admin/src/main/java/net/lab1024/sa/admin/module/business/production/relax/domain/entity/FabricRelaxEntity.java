@@ -1,6 +1,7 @@
 package net.lab1024.sa.admin.module.business.production.relax.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -25,6 +26,11 @@ public class FabricRelaxEntity {
     private BigDecimal requireLength;
     private BigDecimal actualLength;
     private BigDecimal relaxHours;
+    @TableField(exist = false)
+    private String customerName;
+    private LocalDateTime relaxTime;
+    private LocalDateTime actualStartTime;
+    private LocalDateTime actualEndTime;
     /** 状态: 0-计划, 1-进行中, 2-完成 */
     private Integer status;
     private Boolean deletedFlag;

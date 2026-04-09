@@ -16,6 +16,10 @@ public class FabricRelaxVO {
     private BigDecimal requireLength;
     private BigDecimal actualLength;
     private BigDecimal relaxHours;
+    private String customerName;
+    private LocalDateTime relaxTime;
+    private LocalDateTime actualStartTime;
+    private LocalDateTime actualEndTime;
     private Integer status;
     private String statusName;
     private String remark;
