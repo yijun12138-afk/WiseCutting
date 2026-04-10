@@ -27,7 +27,7 @@ export const appDefaultConfig = {
   // 圆角
   borderRadius: 6,
   // 菜单展开模式
-  menuSingleExpandFlag: true,
+  menuSingleExpandFlag: false,
   // 标签页
   pageTagFlag: true,
   // 标签页样式: default、 antd、chrome
@@ -43,7 +43,7 @@ export const appDefaultConfig = {
   // 水印
   watermarkFlag: true,
   // 网站名称
-  websiteName: 'SmartAdmin 3.X',
+  websiteName: '裁匠',
   // 主题颜色
   primaryColor: '#1677ff',
   // 紧凑

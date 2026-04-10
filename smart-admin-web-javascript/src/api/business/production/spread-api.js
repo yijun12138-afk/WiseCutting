@@ -7,4 +7,5 @@ export const fabricSpreadApi = {
   saveAndIssue: (param) => postRequest('/production/spread/saveAndIssue', param),
   complete: (param) => postRequest('/production/spread/complete', param),
   delete: (id) => getRequest(`/production/spread/delete/${id}`),
+  batchDelete: (ids) => postRequest('/production/spread/batchDelete', ids),
 };

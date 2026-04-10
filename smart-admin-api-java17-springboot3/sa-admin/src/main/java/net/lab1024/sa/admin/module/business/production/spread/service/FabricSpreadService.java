@@ -88,6 +88,21 @@ public class FabricSpreadService {
         return ResponseDTO.ok();
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> batchDelete(List<Long> spreadIds) {
+        if (spreadIds == null || spreadIds.isEmpty()) {
+            return ResponseDTO.userErrorParam("请选择要删除的任务");
+        }
+        for (Long spreadId : spreadIds) {
+            FabricSpreadEntity entity = fabricSpreadDao.selectById(spreadId);
+            if (entity != null) {
+                entity.setDeletedFlag(Boolean.TRUE);
+                fabricSpreadDao.updateById(entity);
+            }
+        }
+        return ResponseDTO.ok();
+    }
+
     private String getStatusName(Integer status) {
         if (status == null) return "";
         return switch (status) {
