@@ -30,7 +30,7 @@
   import { computed, nextTick, ref, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import RecursionMenu from './recursion-menu.vue';
-  import logoImg from '/@/assets/images/logo/mylogo4.png';
+  import logoImg from '/@/assets/images/logo/logo6.png';
   import { HOME_PAGE_NAME } from '/@/constants/system/home-const';
   import { useAppConfigStore } from '/@/store/modules/system/app-config';
 
@@ -110,9 +110,9 @@
       align-items: center;
 
       .logo-img {
-        width: 120px;
-        height: 140px;
-        margin: 10px -40px 0px -90px;
+        width: 60px;
+        height: 60px;
+        margin: 10px -10px 0px -30px;
       }
 
       .title {

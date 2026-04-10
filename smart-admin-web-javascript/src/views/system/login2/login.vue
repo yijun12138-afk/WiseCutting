@@ -12,41 +12,48 @@
   <div class="login-container">
     <div class="box-item desc">
       <div class="welcome">
+        <div class="logo">
+          <img src="/@/assets/images/logo/logo6.png" alt="裁智云" />
+          <span>裁智云</span>
+        </div>
+        <div class="slogan">管理更轻松，生产更智慧</div>
+        <div class="feature">缝前一体化解决方案</div>
+        <div class="highlight">多·快·好·省</div>
       </div>
     </div>
     <div class="box-item login">
-      <img class="login-qr" :src="loginQR" />
-      <div class="login-title">账号登录</div>
+      <div class="login-header">
+        <div class="logo-text">裁智云</div>
+        <div class="logo-subtext">wisecutting</div>
+      </div>
       <a-form ref="formRef" class="login-form" :model="loginForm" :rules="rules">
-        <a-form-item name="loginName" style="color:#cdcfd1">
-          用户名：
-          <a-input v-model:value.trim="loginForm.loginName" placeholder="请输入用户名" />
+        <a-form-item name="loginName">
+          <div class="form-label">用户名：</div>
+          <a-input v-model:value.trim="loginForm.loginName" placeholder="admin" />
         </a-form-item>
         <a-form-item name="emailCode" v-if="emailCodeShowFlag">
+          <div class="form-label">邮箱验证码：</div>
           <a-input-group compact>
-            <a-input style="width: calc(100% - 110px)" v-model:value="loginForm.emailCode" autocomplete="on" placeholder="请输入邮箱验证码" />
+            <a-input style="width: calc(100% - 110px)" v-model:value="loginForm.emailCode" autocomplete="on"
+              placeholder="请输入邮箱验证码" />
             <a-button @click="sendSmsCode" class="code-btn" type="primary" :disabled="emailCodeButtonDisabled">
               {{ emailCodeTips }}
             </a-button>
           </a-input-group>
         </a-form-item>
-        <a-form-item name="password" style="color:#cdcfd1">
-          密码：
-          <a-input-password
-            v-model:value="loginForm.password"
-            autocomplete="on"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="请输入密码"
-          />
+        <a-form-item name="password">
+          <div class="form-label">密码：</div>
+          <a-input-password v-model:value="loginForm.password" autocomplete="on"
+            :type="showPassword ? 'text' : 'password'" placeholder="请输入密码" />
         </a-form-item>
-        <a-form-item name="captchaCode" style="color:#cdcfd1">
-          <div>验证码：</div>
+        <a-form-item name="captchaCode">
+          <div class="form-label">验证码：</div>
           <a-input class="captcha-input" v-model:value.trim="loginForm.captchaCode" placeholder="请输入验证码" />
           <img class="captcha-img" :src="captchaBase64Image" @click="getCaptcha" />
+          <div style="color:darkgray; font-size: 12px;">(默认用户admin,密码123456)</div>
         </a-form-item>
         <a-form-item>
           <a-checkbox v-model:checked="rememberPwd">记住密码</a-checkbox>
-          <span style="color:#cdcfd1;font-size:12px"> ( 账号：admin, 密码：123456)</span>
         </a-form-item>
         <a-form-item>
           <div class="btn" @click="onLogin">登录</div>
@@ -69,173 +76,173 @@
   </div>
 </template>
 <script setup>
-  import { message } from 'ant-design-vue';
-  import { onMounted, onUnmounted, reactive, ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { loginApi } from '/@/api/system/login-api';
-  import { SmartLoading } from '/@/components/framework/smart-loading';
-  import { LOGIN_DEVICE_ENUM } from '/@/constants/system/login-device-const';
-  import { useUserStore } from '/@/store/modules/system/user';
-  import loginQR from '/@/assets/images/login/login-qr.png';
-  import wechatIcon from '/@/assets/images/login/wechat-icon.png';
-  import aliIcon from '/@/assets/images/login/ali-icon.png';
-  import feishuIcon from '/@/assets/images/login/feishu-icon.png';
-  import googleIcon from '/@/assets/images/login/google-icon.png';
+import { message } from 'ant-design-vue';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { loginApi } from '/@/api/system/login-api';
+import { SmartLoading } from '/@/components/framework/smart-loading';
+import { LOGIN_DEVICE_ENUM } from '/@/constants/system/login-device-const';
+import { useUserStore } from '/@/store/modules/system/user';
+import loginQR from '/@/assets/images/login/login-qr.png';
+import wechatIcon from '/@/assets/images/login/wechat-icon.png';
+import aliIcon from '/@/assets/images/login/ali-icon.png';
+import feishuIcon from '/@/assets/images/login/feishu-icon.png';
+import googleIcon from '/@/assets/images/login/google-icon.png';
 
-  import { buildRoutes } from '/@/router/index';
-  import { smartSentry } from '/@/lib/smart-sentry';
-  import { encryptData } from '/@/lib/encrypt';
-  import { localSave } from '/@/utils/local-util';
-  import LocalStorageKeyConst from '/@/constants/local-storage-key-const';
-  import { useDictStore } from '/@/store/modules/system/dict';
-  import { dictApi } from '/@/api/support/dict-api';
+import { buildRoutes } from '/@/router/index';
+import { smartSentry } from '/@/lib/smart-sentry';
+import { encryptData } from '/@/lib/encrypt';
+import { localSave } from '/@/utils/local-util';
+import LocalStorageKeyConst from '/@/constants/local-storage-key-const';
+import { useDictStore } from '/@/store/modules/system/dict';
+import { dictApi } from '/@/api/support/dict-api';
 
-  //--------------------- 登录表单 ---------------------------------
+//--------------------- 登录表单 ---------------------------------
 
-  const loginForm = reactive({
-    loginName: 'admin',
-    password: '',
-    captchaCode: '',
-    captchaUuid: '',
-    loginDevice: LOGIN_DEVICE_ENUM.PC.value,
-  });
-  const rules = {
-    loginName: [{ required: true, message: '用户名不能为空' }],
-    password: [{ required: true, message: '密码不能为空' }],
-    captchaCode: [{ required: true, message: '验证码不能为空' }],
+const loginForm = reactive({
+  loginName: 'admin',
+  password: '',
+  captchaCode: '',
+  captchaUuid: '',
+  loginDevice: LOGIN_DEVICE_ENUM.PC.value,
+});
+const rules = {
+  loginName: [{ required: true, message: '用户名不能为空' }],
+  password: [{ required: true, message: '密码不能为空' }],
+  captchaCode: [{ required: true, message: '验证码不能为空' }],
+};
+
+const showPassword = ref(false);
+const router = useRouter();
+const formRef = ref();
+const rememberPwd = ref(false);
+
+onMounted(() => {
+  document.onkeyup = (e) => {
+    if (e.keyCode === 13) {
+      onLogin();
+    }
   };
+});
 
-  const showPassword = ref(false);
-  const router = useRouter();
-  const formRef = ref();
-  const rememberPwd = ref(false);
+onUnmounted(() => {
+  document.onkeyup = null;
+});
 
-  onMounted(() => {
-    document.onkeyup = (e) => {
-      if (e.keyCode === 13) {
-        onLogin();
-      }
-    };
-  });
-
-  onUnmounted(() => {
-    document.onkeyup = null;
-  });
-
-  //登录
-  async function onLogin() {
-    formRef.value.validate().then(async () => {
-      try {
-        SmartLoading.show();
-        // 密码加密
-        let encryptPasswordForm = Object.assign({}, loginForm, {
-          password: encryptData(loginForm.password),
-        });
-        const res = await loginApi.login(encryptPasswordForm);
-        stopRefreshCaptchaInterval();
-        localSave(LocalStorageKeyConst.USER_TOKEN, res.data.token ? res.data.token : '');
-        message.success('登录成功');
-        //更新用户信息到pinia
-        useUserStore().setUserLoginInfo(res.data);
-        // 初始化数据字典
-        const dictRes = await dictApi.getAllDictData();
-        useDictStore().initData(dictRes.data);
-        //构建系统的路由
-        buildRoutes();
-        router.push('/home');
-      } catch (e) {
-        if (e.data && e.data.code !== 0) {
-          loginForm.captchaCode = '';
-          getCaptcha();
-        }
-        smartSentry.captureError(e);
-      } finally {
-        SmartLoading.hide();
-      }
-    });
-  }
-
-  //--------------------- 验证码 ---------------------------------
-
-  const captchaBase64Image = ref('');
-  async function getCaptcha() {
-    try {
-      let captchaResult = await loginApi.getCaptcha();
-      captchaBase64Image.value = captchaResult.data.captchaBase64Image;
-      loginForm.captchaUuid = captchaResult.data.captchaUuid;
-      beginRefreshCaptchaInterval(captchaResult.data.expireSeconds);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  let refreshCaptchaInterval = null;
-  function beginRefreshCaptchaInterval(expireSeconds) {
-    if (refreshCaptchaInterval === null) {
-      refreshCaptchaInterval = setInterval(getCaptcha, (expireSeconds - 5) * 1000);
-    }
-  }
-
-  function stopRefreshCaptchaInterval() {
-    if (refreshCaptchaInterval != null) {
-      clearInterval(refreshCaptchaInterval);
-      refreshCaptchaInterval = null;
-    }
-  }
-
-  onMounted(() => {
-    getCaptcha();
-    getTwoFactorLoginFlag();
-  });
-
-  //--------------------- 邮箱验证码 ---------------------------------
-
-  const emailCodeShowFlag = ref(false);
-  let emailCodeTips = ref('获取邮箱验证码');
-  let emailCodeButtonDisabled = ref(false);
-  // 定时器
-  let countDownTimer = null;
-  // 开始倒计时
-  function runCountDown() {
-    emailCodeButtonDisabled.value = true;
-    let countDown = 60;
-    emailCodeTips.value = `${countDown}秒后重新获取`;
-    countDownTimer = setInterval(() => {
-      if (countDown > 1) {
-        countDown--;
-        emailCodeTips.value = `${countDown}秒后重新获取`;
-      } else {
-        clearInterval(countDownTimer);
-        emailCodeButtonDisabled.value = false;
-        emailCodeTips.value = '获取验证码';
-      }
-    }, 1000);
-  }
-
-  // 获取双因子登录标识
-  async function getTwoFactorLoginFlag() {
-    try {
-      let result = await loginApi.getTwoFactorLoginFlag();
-      emailCodeShowFlag.value = result.data;
-    } catch (e) {
-      smartSentry.captureError(e);
-    }
-  }
-
-  // 发送邮箱验证码
-  async function sendSmsCode() {
+//登录
+async function onLogin() {
+  formRef.value.validate().then(async () => {
     try {
       SmartLoading.show();
-      let result = await loginApi.sendLoginEmailCode(loginForm.loginName);
-      message.success('验证码发送成功!请登录邮箱查看验证码~');
-      runCountDown();
+      // 密码加密
+      let encryptPasswordForm = Object.assign({}, loginForm, {
+        password: encryptData(loginForm.password),
+      });
+      const res = await loginApi.login(encryptPasswordForm);
+      stopRefreshCaptchaInterval();
+      localSave(LocalStorageKeyConst.USER_TOKEN, res.data.token ? res.data.token : '');
+      message.success('登录成功');
+      //更新用户信息到pinia
+      useUserStore().setUserLoginInfo(res.data);
+      // 初始化数据字典
+      const dictRes = await dictApi.getAllDictData();
+      useDictStore().initData(dictRes.data);
+      //构建系统的路由
+      buildRoutes();
+      router.push('/home');
     } catch (e) {
+      if (e.data && e.data.code !== 0) {
+        loginForm.captchaCode = '';
+        getCaptcha();
+      }
       smartSentry.captureError(e);
     } finally {
       SmartLoading.hide();
     }
+  });
+}
+
+//--------------------- 验证码 ---------------------------------
+
+const captchaBase64Image = ref('');
+async function getCaptcha() {
+  try {
+    let captchaResult = await loginApi.getCaptcha();
+    captchaBase64Image.value = captchaResult.data.captchaBase64Image;
+    loginForm.captchaUuid = captchaResult.data.captchaUuid;
+    beginRefreshCaptchaInterval(captchaResult.data.expireSeconds);
+  } catch (e) {
+    console.log(e);
   }
+}
+
+let refreshCaptchaInterval = null;
+function beginRefreshCaptchaInterval(expireSeconds) {
+  if (refreshCaptchaInterval === null) {
+    refreshCaptchaInterval = setInterval(getCaptcha, (expireSeconds - 5) * 1000);
+  }
+}
+
+function stopRefreshCaptchaInterval() {
+  if (refreshCaptchaInterval != null) {
+    clearInterval(refreshCaptchaInterval);
+    refreshCaptchaInterval = null;
+  }
+}
+
+onMounted(() => {
+  getCaptcha();
+  getTwoFactorLoginFlag();
+});
+
+//--------------------- 邮箱验证码 ---------------------------------
+
+const emailCodeShowFlag = ref(false);
+let emailCodeTips = ref('获取邮箱验证码');
+let emailCodeButtonDisabled = ref(false);
+// 定时器
+let countDownTimer = null;
+// 开始倒计时
+function runCountDown() {
+  emailCodeButtonDisabled.value = true;
+  let countDown = 60;
+  emailCodeTips.value = `${countDown}秒后重新获取`;
+  countDownTimer = setInterval(() => {
+    if (countDown > 1) {
+      countDown--;
+      emailCodeTips.value = `${countDown}秒后重新获取`;
+    } else {
+      clearInterval(countDownTimer);
+      emailCodeButtonDisabled.value = false;
+      emailCodeTips.value = '获取验证码';
+    }
+  }, 1000);
+}
+
+// 获取双因子登录标识
+async function getTwoFactorLoginFlag() {
+  try {
+    let result = await loginApi.getTwoFactorLoginFlag();
+    emailCodeShowFlag.value = result.data;
+  } catch (e) {
+    smartSentry.captureError(e);
+  }
+}
+
+// 发送邮箱验证码
+async function sendSmsCode() {
+  try {
+    SmartLoading.show();
+    let result = await loginApi.sendLoginEmailCode(loginForm.loginName);
+    message.success('验证码发送成功!请登录邮箱查看验证码~');
+    runCountDown();
+  } catch (e) {
+    smartSentry.captureError(e);
+  } finally {
+    SmartLoading.hide();
+  }
+}
 </script>
 <style lang="less" scoped>
-  @import './login.less';
+@import './login.less';
 </style>
