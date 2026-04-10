@@ -63,4 +63,11 @@ public class FabricSpreadController {
     public ResponseDTO<String> delete(@PathVariable Long spreadId) {
         return fabricSpreadService.delete(spreadId);
     }
+
+    @Operation(summary = "批量删除铺布任务")
+    @PostMapping("/production/spread/batchDelete")
+    @SaCheckPermission("production:spread:query")
+    public ResponseDTO<String> batchDelete(@RequestBody List<Long> spreadIds) {
+        return fabricSpreadService.batchDelete(spreadIds);
+    }
 }
