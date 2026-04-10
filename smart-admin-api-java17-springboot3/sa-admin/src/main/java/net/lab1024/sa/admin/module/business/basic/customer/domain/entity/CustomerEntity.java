@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 /**
@@ -15,6 +16,9 @@ public class CustomerEntity {
 
     @TableId(type = IdType.AUTO)
     private Long customerId;
+
+    /** 客户编号 */
+    private String customerCode;
 
     /** 客户名称 */
     private String customerName;

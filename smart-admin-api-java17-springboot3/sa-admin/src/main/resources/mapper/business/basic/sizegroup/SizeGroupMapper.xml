@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.lab1024.sa.admin.module.business.basic.sizegroup.dao.SizeGroupDao">
+
+    <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.sizegroup.domain.vo.SizeGroupVO">
+        SELECT group_id, group_name, remark, create_time
+        FROM t_size_group
+        <where>
+            deleted_flag = 0
+            <if test="queryForm.searchWord != null and queryForm.searchWord != ''">
+                AND (INSTR(group_name, #{queryForm.searchWord}) OR INSTR(remark, #{queryForm.searchWord}))
+            </if>
+        </where>
+        ORDER BY group_id DESC
+    </select>
+
+    <select id="queryAll" resultType="net.lab1024.sa.admin.module.business.basic.sizegroup.domain.vo.SizeGroupVO">
+        SELECT group_id, group_name, remark, create_time
+        FROM t_size_group
+        WHERE deleted_flag = 0
+        ORDER BY group_id DESC
+    </select>
+
+</mapper>

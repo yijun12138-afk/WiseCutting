@@ -25,7 +25,9 @@ DROP TABLE IF EXISTS `t_fabric_sku`;
 DROP TABLE IF EXISTS `t_fabric`;
 DROP TABLE IF EXISTS `t_cutting_part`;
 DROP TABLE IF EXISTS `t_unit`;
+DROP TABLE IF EXISTS `t_size_group`;
 DROP TABLE IF EXISTS `t_size`;
+DROP TABLE IF EXISTS `t_color_group`;
 DROP TABLE IF EXISTS `t_style_color`;
 DROP TABLE IF EXISTS `t_customer`;
 
@@ -34,6 +36,7 @@ DROP TABLE IF EXISTS `t_customer`;
 -- =====================================================
 CREATE TABLE `t_customer` (
   `customer_id`    bigint       NOT NULL AUTO_INCREMENT COMMENT '客户ID',
+  `customer_code`  varchar(50)  NOT NULL COMMENT '客户编号',
   `customer_name`  varchar(100) NOT NULL COMMENT '客户名称',
   `company_name`   varchar(200) DEFAULT NULL COMMENT '公司名称',
   `contact_person` varchar(50)  DEFAULT NULL COMMENT '联系人',
@@ -47,12 +50,12 @@ CREATE TABLE `t_customer` (
   PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='客户管理';
 
-INSERT INTO `t_customer` (`customer_id`,`customer_name`,`company_name`,`contact_person`,`phone`,`level`,`disabled_flag`,`deleted_flag`,`remark`,`create_time`,`update_time`) VALUES
-(1,'元一','元一服装有限公司','张经理','13800138001','A',0,0,'VIP客户，长期合作','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(2,'美诺','美诺贸易公司','李总','13900139002','B',0,0,'稳定合作客户','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(3,'鑫达','鑫达纺织集团','王主任','13700137003','A',0,0,'长期合作，优先供货','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(4,'恒通','恒通服饰有限公司','陈总监','13600136004','C',0,0,'新客户','2024-03-01 09:00:00','2024-03-01 09:00:00'),
-(5,'锦华','锦华时装集团','赵经理','13500135005','B',1,0,'已停用','2024-02-01 09:00:00','2024-06-01 09:00:00');
+INSERT INTO `t_customer` (`customer_id`,`customer_code`,`customer_name`,`company_name`,`contact_person`,`phone`,`level`,`disabled_flag`,`deleted_flag`,`remark`,`create_time`,`update_time`) VALUES
+(1,'KH001','元一','元一服装有限公司','张经理','13800138001','A',0,0,'VIP客户，长期合作','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(2,'KH002','美诺','美诺贸易公司','李总','13900139002','B',0,0,'稳定合作客户','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(3,'KH003','鑫达','鑫达纺织集团','王主任','13700137003','A',0,0,'长期合作，优先供货','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(4,'KH004','恒通','恒通服饰有限公司','陈总监','13600136004','C',0,0,'新客户','2024-03-01 09:00:00','2024-03-01 09:00:00'),
+(5,'KH005','锦华','锦华时装集团','赵经理','13500135005','B',1,0,'已停用','2024-02-01 09:00:00','2024-06-01 09:00:00');
 
 -- =====================================================
 -- 2. 款式颜色表
@@ -60,6 +63,7 @@ INSERT INTO `t_customer` (`customer_id`,`customer_name`,`company_name`,`contact_
 CREATE TABLE `t_style_color` (
   `color_id`         bigint       NOT NULL AUTO_INCREMENT COMMENT '颜色ID',
   `style_no`         varchar(50)  DEFAULT NULL COMMENT '款号',
+  `color_group_id`   bigint       DEFAULT NULL COMMENT '颜色组ID',
   `color_name`       varchar(50)  NOT NULL COMMENT '款式颜色名称',
   `color_code`       varchar(20)  DEFAULT NULL COMMENT '颜色编码',
   `deleted_flag`     tinyint      NOT NULL DEFAULT 0 COMMENT '删除标识:0-正常,1-已删除',
@@ -71,20 +75,43 @@ CREATE TABLE `t_style_color` (
   PRIMARY KEY (`color_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='款式颜色';
 
-INSERT INTO `t_style_color` (`color_id`,`style_no`,`color_name`,`color_code`,`deleted_flag`,`remark`,`create_user_id`,`create_user_name`,`create_time`,`update_time`) VALUES
-(1,'YY001','米白','MW001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(2,'YY001','黑色','HE001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(3,'YY002','藏蓝','ZL001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(4,'YY002','卡其','KQ001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(5,'YY003','红色','HS001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(6,'YY003','深灰','SH001',0,NULL,1,'管理员','2024-02-01 09:00:00','2024-02-01 09:00:00'),
-(7,'YY004','天蓝','TL001',0,NULL,1,'管理员','2024-03-01 09:00:00','2024-03-01 09:00:00');
+INSERT INTO `t_style_color` (`color_id`,`style_no`,`color_group_id`,`color_name`,`color_code`,`deleted_flag`,`remark`,`create_user_id`,`create_user_name`,`create_time`,`update_time`) VALUES
+(1,'YY001',1,'米白','MW001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(2,'YY001',2,'黑色','HE001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(3,'YY002',3,'藏蓝','ZL001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(4,'YY002',4,'卡其','KQ001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(5,'YY003',5,'红色','HS001',0,NULL,1,'管理员','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(6,'YY003',6,'深灰','SH001',0,NULL,1,'管理员','2024-02-01 09:00:00','2024-02-01 09:00:00'),
+(7,'YY004',7,'天蓝','TL001',0,NULL,1,'管理员','2024-03-01 09:00:00','2024-03-01 09:00:00');
+
+-- =====================================================
+-- 2.1 颜色组表
+-- =====================================================
+CREATE TABLE `t_color_group` (
+  `group_id`      bigint       NOT NULL AUTO_INCREMENT COMMENT '颜色组ID',
+  `group_name`    varchar(50)  NOT NULL COMMENT '颜色组名称',
+  `deleted_flag`  tinyint      NOT NULL DEFAULT 0 COMMENT '删除标识:0-正常,1-已删除',
+  `remark`        varchar(255) DEFAULT NULL COMMENT '备注',
+  `create_time`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='颜色组';
+
+INSERT INTO `t_color_group` (`group_id`,`group_name`,`deleted_flag`,`remark`,`create_time`,`update_time`) VALUES
+(1,'白色组',0,NULL,'2025-08-14 15:57:21','2025-08-14 15:57:21'),
+(2,'黄色组',0,NULL,'2025-08-14 17:24:49','2025-08-14 17:24:49'),
+(3,'紫色组',0,NULL,'2025-08-16 15:32:58','2025-08-16 15:32:58'),
+(4,'蓝色组',0,NULL,'2025-08-16 15:33:21','2025-08-16 15:33:21'),
+(5,'红色组',0,NULL,'2025-08-16 15:33:40','2025-08-16 15:33:40'),
+(6,'灰色组',0,NULL,'2025-08-16 15:34:02','2025-08-16 15:34:02'),
+(7,'青色组',0,NULL,'2025-08-16 15:34:18','2025-08-16 15:34:18');
 
 -- =====================================================
 -- 3. 尺寸列表表
 -- =====================================================
 CREATE TABLE `t_size` (
   `size_id`      bigint       NOT NULL AUTO_INCREMENT COMMENT '尺码ID',
+  `size_group_id` bigint       DEFAULT NULL COMMENT '尺码组ID',
   `size_name`    varchar(20)  NOT NULL COMMENT '尺码名称',
   `sort`         int          NOT NULL DEFAULT 0 COMMENT '排序（升序）',
   `deleted_flag` tinyint      NOT NULL DEFAULT 0 COMMENT '删除标识:0-正常,1-已删除',
@@ -94,14 +121,32 @@ CREATE TABLE `t_size` (
   PRIMARY KEY (`size_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='尺寸列表';
 
-INSERT INTO `t_size` (`size_id`,`size_name`,`sort`,`deleted_flag`,`remark`,`create_time`,`update_time`) VALUES
-(1,'XS',1,0,'超小号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(2,'S',2,0,'小号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(3,'M',3,0,'中号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(4,'L',4,0,'大号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(5,'XL',5,0,'加大号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(6,'2XL',6,0,'超大号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
-(7,'3XL',7,0,'特大号','2024-01-01 09:00:00','2024-01-01 09:00:00');
+INSERT INTO `t_size` (`size_id`,`size_group_id`,`size_name`,`sort`,`deleted_flag`,`remark`,`create_time`,`update_time`) VALUES
+(1,1,'XS',1,0,'超小号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(2,1,'S',2,0,'小号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(3,1,'M',3,0,'中号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(4,2,'L',4,0,'大号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(5,2,'XL',5,0,'加大号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(6,3,'2XL',6,0,'超大号','2024-01-01 09:00:00','2024-01-01 09:00:00'),
+(7,3,'3XL',7,0,'特大号','2024-01-01 09:00:00','2024-01-01 09:00:00');
+
+-- =====================================================
+-- 3.1 尺码组表
+-- =====================================================
+CREATE TABLE `t_size_group` (
+  `group_id`      bigint       NOT NULL AUTO_INCREMENT COMMENT '尺码组ID',
+  `group_name`    varchar(50)  NOT NULL COMMENT '尺码组名称',
+  `deleted_flag`  tinyint      NOT NULL DEFAULT 0 COMMENT '删除标识:0-正常,1-已删除',
+  `remark`        varchar(255) DEFAULT NULL COMMENT '备注',
+  `create_time`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='尺码组';
+
+INSERT INTO `t_size_group` (`group_id`,`group_name`,`deleted_flag`,`remark`,`create_time`,`update_time`) VALUES
+(1,'常规组',0,NULL,'2025-08-14 15:57:21','2025-08-14 15:57:21'),
+(2,'大码组',0,NULL,'2025-08-14 17:24:49','2025-08-14 17:24:49'),
+(3,'加大组',0,NULL,'2025-08-16 15:32:58','2025-08-16 15:32:58');
 
 -- =====================================================
 -- 4. 单位管理表

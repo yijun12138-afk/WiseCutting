@@ -7,12 +7,15 @@ import net.lab1024.sa.admin.module.business.basic.size.domain.entity.SizeEntity;
 import net.lab1024.sa.admin.module.business.basic.size.domain.form.SizeAddForm;
 import net.lab1024.sa.admin.module.business.basic.size.domain.form.SizeQueryForm;
 import net.lab1024.sa.admin.module.business.basic.size.domain.vo.SizeVO;
+import net.lab1024.sa.admin.module.business.basic.sizegroup.dao.SizeGroupDao;
+import net.lab1024.sa.admin.module.business.basic.sizegroup.domain.entity.SizeGroupEntity;
 import net.lab1024.sa.base.common.domain.PageResult;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -20,6 +23,9 @@ public class SizeService {
 
     @Resource
     private SizeDao sizeDao;
+
+    @Resource
+    private SizeGroupDao sizeGroupDao;
 
     public ResponseDTO<PageResult<SizeVO>> query(SizeQueryForm queryForm) {
         queryForm.setDeletedFlag(false);
@@ -34,6 +40,10 @@ public class SizeService {
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> addOrUpdate(SizeAddForm form) {
+        SizeGroupEntity sizeGroup = sizeGroupDao.selectById(form.getSizeGroupId());
+        if (sizeGroup == null || Boolean.TRUE.equals(sizeGroup.getDeletedFlag())) {
+            return ResponseDTO.userErrorParam("尺码组不存在");
+        }
         SizeEntity entity = SmartBeanUtil.copy(form, SizeEntity.class);
         if (form.getSizeId() == null) {
             entity.setDeletedFlag(Boolean.FALSE);

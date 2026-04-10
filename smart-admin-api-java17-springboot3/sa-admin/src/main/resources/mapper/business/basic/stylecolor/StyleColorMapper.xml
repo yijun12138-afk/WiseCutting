@@ -3,22 +3,44 @@
 <mapper namespace="net.lab1024.sa.admin.module.business.basic.stylecolor.dao.StyleColorDao">
 
     <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.stylecolor.domain.vo.StyleColorVO">
-        SELECT color_id, color_name, remark, create_user_name, create_time
-        FROM t_style_color
+        SELECT sc.color_id,
+               sc.style_no,
+               sc.color_group_id,
+               cg.group_name AS color_group_name,
+               sc.color_name,
+               sc.color_code,
+               sc.remark,
+               sc.create_user_name,
+               sc.create_time
+        FROM t_style_color sc
+        LEFT JOIN t_color_group cg ON sc.color_group_id = cg.group_id
         <where>
-            deleted_flag = 0
+            sc.deleted_flag = 0
             <if test="queryForm.searchWord != null and queryForm.searchWord != ''">
-                AND INSTR(color_name, #{queryForm.searchWord})
+                AND (
+                    INSTR(cg.group_name, #{queryForm.searchWord})
+                    OR INSTR(sc.color_name, #{queryForm.searchWord})
+                    OR INSTR(sc.remark, #{queryForm.searchWord})
+                )
             </if>
         </where>
-        ORDER BY color_id DESC
+        ORDER BY sc.color_id DESC
     </select>
 
     <select id="queryAll" resultType="net.lab1024.sa.admin.module.business.basic.stylecolor.domain.vo.StyleColorVO">
-        SELECT color_id, color_name, remark, create_user_name, create_time
-        FROM t_style_color
-        WHERE deleted_flag = 0
-        ORDER BY color_id DESC
+        SELECT sc.color_id,
+               sc.style_no,
+               sc.color_group_id,
+               cg.group_name AS color_group_name,
+               sc.color_name,
+               sc.color_code,
+               sc.remark,
+               sc.create_user_name,
+               sc.create_time
+        FROM t_style_color sc
+        LEFT JOIN t_color_group cg ON sc.color_group_id = cg.group_id
+        WHERE sc.deleted_flag = 0
+        ORDER BY sc.color_id DESC
     </select>
 
 </mapper>

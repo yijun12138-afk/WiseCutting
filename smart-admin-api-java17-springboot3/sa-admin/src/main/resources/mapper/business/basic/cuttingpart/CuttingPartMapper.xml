@@ -3,7 +3,7 @@
 <mapper namespace="net.lab1024.sa.admin.module.business.basic.cuttingpart.dao.CuttingPartDao">
 
     <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.cuttingpart.domain.vo.CuttingPartVO">
-        SELECT part_id, part_name, part_code, remark, create_time
+        SELECT part_id, part_name, part_code, remark, create_time, update_time
         FROM t_cutting_part
         <where>
             deleted_flag = 0

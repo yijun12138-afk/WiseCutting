@@ -3,22 +3,40 @@
 <mapper namespace="net.lab1024.sa.admin.module.business.basic.size.dao.SizeDao">
 
     <select id="queryPage" resultType="net.lab1024.sa.admin.module.business.basic.size.domain.vo.SizeVO">
-        SELECT size_id, size_name, sort, remark, create_time
-        FROM t_size
+        SELECT s.size_id,
+               s.size_group_id,
+               sg.group_name AS size_group_name,
+               s.size_name,
+               s.sort,
+               s.remark,
+               s.create_time
+        FROM t_size s
+        LEFT JOIN t_size_group sg ON s.size_group_id = sg.group_id
         <where>
-            deleted_flag = 0
+            s.deleted_flag = 0
             <if test="queryForm.searchWord != null and queryForm.searchWord != ''">
-                AND (INSTR(size_name, #{queryForm.searchWord}) OR INSTR(remark, #{queryForm.searchWord}))
+                AND (
+                    INSTR(sg.group_name, #{queryForm.searchWord})
+                    OR INSTR(s.size_name, #{queryForm.searchWord})
+                    OR INSTR(s.remark, #{queryForm.searchWord})
+                )
             </if>
         </where>
-        ORDER BY sort ASC, size_id DESC
+        ORDER BY s.sort ASC, s.size_id DESC
     </select>
 
     <select id="queryAll" resultType="net.lab1024.sa.admin.module.business.basic.size.domain.vo.SizeVO">
-        SELECT size_id, size_name, sort, remark, create_time
-        FROM t_size
-        WHERE deleted_flag = 0
-        ORDER BY sort ASC, size_id DESC
+        SELECT s.size_id,
+               s.size_group_id,
+               sg.group_name AS size_group_name,
+               s.size_name,
+               s.sort,
+               s.remark,
+               s.create_time
+        FROM t_size s
+        LEFT JOIN t_size_group sg ON s.size_group_id = sg.group_id
+        WHERE s.deleted_flag = 0
+        ORDER BY s.sort ASC, s.size_id DESC
     </select>
 
 </mapper>

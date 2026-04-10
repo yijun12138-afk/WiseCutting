@@ -2,13 +2,14 @@
   <a-form class="smart-query-form">
     <a-row class="smart-query-form-row">
       <a-form-item label="关键字" class="smart-query-form-item">
-        <a-input style="width:200px" v-model:value="queryForm.searchWord" placeholder="颜色名称/备注" />
+        <a-input style="width: 200px" v-model:value="queryForm.searchWord" placeholder="颜色组/颜色名称/备注" />
       </a-form-item>
       <a-form-item class="smart-query-form-item">
         <a-button-group>
           <a-button type="primary" @click="onSearch"><SearchOutlined />查询</a-button>
           <a-button @click="resetQuery"><ReloadOutlined />重置</a-button>
         </a-button-group>
+        <a-button type="primary" style="margin-left: 12px" @click="openColorGroupModal">+颜色组</a-button>
       </a-form-item>
     </a-row>
   </a-form>
@@ -32,61 +33,99 @@
       </template>
     </a-table>
     <div class="smart-query-table-page">
-      <a-pagination showSizeChanger showQuickJumper :pageSizeOptions="PAGE_SIZE_OPTIONS"
-        v-model:current="queryForm.pageNum" v-model:pageSize="queryForm.pageSize"
-        :total="total" @change="queryData" :show-total="(t) => `共${t}条`" />
+      <a-pagination
+        showSizeChanger
+        showQuickJumper
+        :pageSizeOptions="PAGE_SIZE_OPTIONS"
+        v-model:current="queryForm.pageNum"
+        v-model:pageSize="queryForm.pageSize"
+        :total="total"
+        @change="queryData"
+        :show-total="(t) => `共${t}条`"
+      />
     </div>
     <StyleColorFormModal ref="formModal" @reload="queryData" />
+    <ColorGroupSelectModal ref="colorGroupModal" @reload="queryData" />
   </a-card>
 </template>
+
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import { message, Modal } from 'ant-design-vue';
-import { SearchOutlined, ReloadOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import { SmartLoading } from '/@/components/framework/smart-loading';
-import { smartSentry } from '/@/lib/smart-sentry';
-import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
-import { styleColorApi } from '/@/api/business/basic/stylecolor-api';
-import StyleColorFormModal from './components/stylecolor-form-modal.vue';
-import _ from 'lodash';
-import TableOperator from '/@/components/support/table-operator/index.vue';
+  import { onMounted, reactive, ref } from 'vue';
+  import { message, Modal } from 'ant-design-vue';
+  import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons-vue';
+  import TableOperator from '/@/components/support/table-operator/index.vue';
+  import { SmartLoading } from '/@/components/framework/smart-loading';
+  import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
+  import { smartSentry } from '/@/lib/smart-sentry';
+  import { styleColorApi } from '/@/api/business/basic/stylecolor-api';
+  import StyleColorFormModal from './components/stylecolor-form-modal.vue';
+  import ColorGroupSelectModal from './components/color-group-select-modal.vue';
+  import _ from 'lodash';
 
-const columns = ref([
-  { title: '颜色名称', dataIndex: 'colorName', width: 150 },
-  { title: '创建时间', dataIndex: 'createTime', width: 160 },
-  { title: '创建人', dataIndex: 'createUserName', width: 100 },
-  { title: '备注', dataIndex: 'remark', ellipsis: true, width: 200 },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
-]);
+  const columns = ref([
+    { title: '颜色组', dataIndex: 'colorGroupName', width: 140 },
+    { title: '颜色名称', dataIndex: 'colorName', width: 150 },
+    { title: '创建时间', dataIndex: 'createTime', width: 160 },
+    { title: '创建人', dataIndex: 'createUserName', width: 100 },
+    { title: '备注', dataIndex: 'remark', ellipsis: true, width: 200 },
+    { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
+  ]);
 
-const queryFormState = { searchWord: '', pageNum: 1, pageSize: 10 };
-const queryForm = reactive(_.cloneDeep(queryFormState));
-const tableData = ref([]);
-const total = ref(0);
+  const queryFormState = { searchWord: '', pageNum: 1, pageSize: 10 };
+  const queryForm = reactive(_.cloneDeep(queryFormState));
+  const tableData = ref([]);
+  const total = ref(0);
+  const formModal = ref();
+  const colorGroupModal = ref();
 
-function resetQuery() { Object.assign(queryForm, _.cloneDeep(queryFormState)); queryData(); }
-function onSearch() { queryForm.pageNum = 1; queryData(); }
+  function resetQuery() {
+    Object.assign(queryForm, _.cloneDeep(queryFormState));
+    queryData();
+  }
 
-async function queryData() {
-  try {
-    const res = await styleColorApi.query(queryForm);
-    tableData.value = res.data.list;
-    total.value = res.data.total;
-  } catch (e) { smartSentry.captureError(e); }
-}
-onMounted(queryData);
+  function onSearch() {
+    queryForm.pageNum = 1;
+    queryData();
+  }
 
-const formModal = ref();
-function openForm(row) { formModal.value.show(row); }
+  async function queryData() {
+    try {
+      const res = await styleColorApi.query(queryForm);
+      tableData.value = res.data.list;
+      total.value = res.data.total;
+    } catch (e) {
+      smartSentry.captureError(e);
+    }
+  }
 
-function onDelete(row) {
-  Modal.confirm({
-    title: '提示', content: `确定删除【${row.colorName}】吗?`,
-    okText: '删除', okType: 'danger',
-    onOk: async () => {
-      try { SmartLoading.show(); await styleColorApi.delete(row.colorId); message.success('删除成功'); queryData(); }
-      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
-    },
-  });
-}
+  onMounted(queryData);
+
+  function openForm(row) {
+    formModal.value.show(row);
+  }
+
+  function openColorGroupModal() {
+    colorGroupModal.value.show();
+  }
+
+  function onDelete(row) {
+    Modal.confirm({
+      title: '提示',
+      content: `确定删除【${row.colorName}】吗?`,
+      okText: '删除',
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          SmartLoading.show();
+          await styleColorApi.delete(row.colorId);
+          message.success('删除成功');
+          queryData();
+        } catch (e) {
+          smartSentry.captureError(e);
+        } finally {
+          SmartLoading.hide();
+        }
+      },
+    });
+  }
 </script>

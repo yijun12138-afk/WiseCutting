@@ -13,6 +13,10 @@ public class CustomerAddForm {
     @Schema(description = "客户ID（修改时必填）")
     private Long customerId;
 
+    @NotBlank(message = "客户编号不能为空")
+    @Schema(description = "客户编号")
+    private String customerCode;
+
     @NotBlank(message = "客户名称不能为空")
     @Schema(description = "客户名称")
     private String customerName;

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 /**
@@ -18,6 +19,9 @@ public class StyleColorEntity {
 
     /** 款号 */
     private String styleNo;
+
+    /** 颜色组ID */
+    private Long colorGroupId;
 
     /** 颜色名称 */
     private String colorName;

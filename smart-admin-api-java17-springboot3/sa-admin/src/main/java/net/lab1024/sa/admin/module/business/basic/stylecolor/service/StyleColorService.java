@@ -2,6 +2,8 @@ package net.lab1024.sa.admin.module.business.basic.stylecolor.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
+import net.lab1024.sa.admin.module.business.basic.colorgroup.dao.ColorGroupDao;
+import net.lab1024.sa.admin.module.business.basic.colorgroup.domain.entity.ColorGroupEntity;
 import net.lab1024.sa.admin.module.business.basic.stylecolor.dao.StyleColorDao;
 import net.lab1024.sa.admin.module.business.basic.stylecolor.domain.entity.StyleColorEntity;
 import net.lab1024.sa.admin.module.business.basic.stylecolor.domain.form.StyleColorAddForm;
@@ -22,6 +24,9 @@ public class StyleColorService {
     @Resource
     private StyleColorDao styleColorDao;
 
+    @Resource
+    private ColorGroupDao colorGroupDao;
+
     public ResponseDTO<PageResult<StyleColorVO>> query(StyleColorQueryForm queryForm) {
         queryForm.setDeletedFlag(false);
         Page<?> page = SmartPageUtil.convert2PageQuery(queryForm);
@@ -35,6 +40,10 @@ public class StyleColorService {
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> addOrUpdate(StyleColorAddForm form) {
+        ColorGroupEntity colorGroup = colorGroupDao.selectById(form.getColorGroupId());
+        if (colorGroup == null || Boolean.TRUE.equals(colorGroup.getDeletedFlag())) {
+            return ResponseDTO.userErrorParam("颜色组不存在");
+        }
         StyleColorEntity entity = SmartBeanUtil.copy(form, StyleColorEntity.class);
         if (form.getColorId() == null) {
             entity.setDeletedFlag(Boolean.FALSE);
