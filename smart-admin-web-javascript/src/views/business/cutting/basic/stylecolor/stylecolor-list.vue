@@ -17,6 +17,9 @@
       <div class="smart-table-operate-block">
         <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
       </div>
+      <div class="smart-table-setting-block">
+        <TableOperator v-model="columns" :tableId="51003" :refresh="queryData" />
+      </div>
     </a-row>
     <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="colorId" :pagination="false" bordered>
       <template #bodyCell="{ record, column }">
@@ -46,6 +49,7 @@ import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
 import { styleColorApi } from '/@/api/business/basic/stylecolor-api';
 import StyleColorFormModal from './components/stylecolor-form-modal.vue';
 import _ from 'lodash';
+import TableOperator from '/@/components/support/table-operator/index.vue';
 
 const columns = ref([
   { title: '颜色名称', dataIndex: 'colorName', width: 150 },

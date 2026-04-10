@@ -12,8 +12,12 @@
       </a-form-item>
       <a-form-item class="smart-query-form-item">
         <a-button-group>
-          <a-button type="primary" @click="onSearch"><SearchOutlined />查询</a-button>
-          <a-button @click="resetQuery"><ReloadOutlined />重置</a-button>
+          <a-button type="primary" @click="onSearch">
+            <SearchOutlined />查询
+          </a-button>
+          <a-button @click="resetQuery">
+            <ReloadOutlined />重置
+          </a-button>
         </a-button-group>
       </a-form-item>
     </a-row>
@@ -21,26 +25,48 @@
   <a-card size="small" :bordered="false" :hoverable="true">
     <a-row class="smart-table-btn-block">
       <div class="smart-table-operate-block">
-        <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
+        <a-button type="primary" @click="openForm(null)">
+          <PlusOutlined />新建
+        </a-button>
+      </div>
+      <div class="smart-table-setting-block">
+        <TableOperator v-model="columns" :tableId="51002" :refresh="queryData" />
       </div>
     </a-row>
     <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="customerId" :pagination="false" bordered>
       <template #bodyCell="{ text, record, column }">
-        <template v-if="column.dataIndex === 'disabledFlag'">
+
+        <!-- 客户名称（可点击） -->
+        <template v-if="column.dataIndex === 'customerName'">
+          <a @click="openForm(record)" style="color: #1890ff; cursor: pointer;">
+            {{ text }}
+          </a>
+        </template>
+
+        <!-- 等级 -->
+        <template v-else-if="column.dataIndex === 'level'">
+          <a-rate :value="record.level" disabled />
+        </template>
+
+        <!-- 状态 -->
+        <template v-else-if="column.dataIndex === 'disabledFlag'">
           <a-tag :color="text ? 'red' : 'green'">{{ text ? '停用' : '正常' }}</a-tag>
         </template>
-        <template v-if="column.dataIndex === 'action'">
+
+        <!-- 操作 -->
+        <template v-else-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="openForm(record)">编辑</a-button>
             <a-button type="link" danger @click="onDelete(record)">删除</a-button>
           </div>
         </template>
+
       </template>
     </a-table>
     <div class="smart-query-table-page">
       <a-pagination showSizeChanger showQuickJumper :pageSizeOptions="PAGE_SIZE_OPTIONS"
-        v-model:current="queryForm.pageNum" v-model:pageSize="queryForm.pageSize"
-        :total="total" @change="queryData" :show-total="(t) => `共${t}条`" />
+        v-model:current="queryForm.pageNum" v-model:pageSize="queryForm.pageSize" :total="total" @change="queryData"
+        :show-total="(t) => `共${t}条`" />
     </div>
     <CustomerFormModal ref="formModal" @reload="queryData" />
   </a-card>
@@ -55,6 +81,7 @@ import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
 import { customerApi } from '/@/api/business/basic/customer-api';
 import CustomerFormModal from './components/customer-form-modal.vue';
 import _ from 'lodash';
+import TableOperator from '/@/components/support/table-operator/index.vue';
 
 const columns = ref([
   { title: '客户名称', dataIndex: 'customerName', width: 150 },
@@ -76,10 +103,25 @@ const total = ref(0);
 function resetQuery() { Object.assign(queryForm, _.cloneDeep(queryFormState)); queryData(); }
 function onSearch() { queryForm.pageNum = 1; queryData(); }
 
+
+function convertLevel(level) {
+  switch (level) {
+    case 'A': return 5;
+    case 'B': return 4;
+    case 'C': return 3;
+    case 'D': return 2;
+    case 'E': return 1;
+    default: return 0;
+  }
+}
+
 async function queryData() {
   try {
     const res = await customerApi.query(queryForm);
-    tableData.value = res.data.list;
+    tableData.value = res.data.list.map(item => ({
+      ...item,
+      level: convertLevel(item.level)
+    }));
     total.value = res.data.total;
   } catch (e) { smartSentry.captureError(e); }
 }

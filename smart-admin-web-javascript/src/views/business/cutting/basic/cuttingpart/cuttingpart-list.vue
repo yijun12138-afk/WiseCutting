@@ -6,8 +6,12 @@
       </a-form-item>
       <a-form-item class="smart-query-form-item">
         <a-button-group>
-          <a-button type="primary" @click="onSearch"><SearchOutlined />查询</a-button>
-          <a-button @click="resetQuery"><ReloadOutlined />重置</a-button>
+          <a-button type="primary" @click="onSearch">
+            <SearchOutlined />查询
+          </a-button>
+          <a-button @click="resetQuery">
+            <ReloadOutlined />重置
+          </a-button>
         </a-button-group>
       </a-form-item>
     </a-row>
@@ -15,7 +19,12 @@
   <a-card size="small" :bordered="false" :hoverable="true">
     <a-row class="smart-table-btn-block">
       <div class="smart-table-operate-block">
-        <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
+        <a-button type="primary" @click="openForm(null)">
+          <PlusOutlined />新建
+        </a-button>
+      </div>
+      <div class="smart-table-setting-block">
+        <TableOperator v-model="columns" :tableId="51001" :refresh="queryData" />
       </div>
     </a-row>
     <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="partId" :pagination="false" bordered>
@@ -30,8 +39,8 @@
     </a-table>
     <div class="smart-query-table-page">
       <a-pagination showSizeChanger showQuickJumper :pageSizeOptions="PAGE_SIZE_OPTIONS"
-        v-model:current="queryForm.pageNum" v-model:pageSize="queryForm.pageSize"
-        :total="total" @change="queryData" :show-total="(t) => `共${t}条`" />
+        v-model:current="queryForm.pageNum" v-model:pageSize="queryForm.pageSize" :total="total" @change="queryData"
+        :show-total="(t) => `共${t}条`" />
     </div>
     <CuttingPartFormModal ref="formModal" @reload="queryData" />
   </a-card>
@@ -46,6 +55,7 @@ import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
 import { cuttingPartApi } from '/@/api/business/basic/cuttingpart-api';
 import CuttingPartFormModal from './components/cuttingpart-form-modal.vue';
 import _ from 'lodash';
+import TableOperator from '/@/components/support/table-operator/index.vue'; 
 
 const columns = ref([
   { title: '部位名称', dataIndex: 'partName', width: 150 },
@@ -67,7 +77,9 @@ onMounted(queryData);
 const formModal = ref();
 function openForm(row) { formModal.value.show(row); }
 function onDelete(row) {
-  Modal.confirm({ title: '提示', content: `确定删除【${row.partName}】吗?`, okText: '删除', okType: 'danger',
-    onOk: async () => { try { SmartLoading.show(); await cuttingPartApi.delete(row.partId); message.success('删除成功'); queryData(); } catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); } } });
+  Modal.confirm({
+    title: '提示', content: `确定删除【${row.partName}】吗?`, okText: '删除', okType: 'danger',
+    onOk: async () => { try { SmartLoading.show(); await cuttingPartApi.delete(row.partId); message.success('删除成功'); queryData(); } catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); } }
+  });
 }
 </script>
