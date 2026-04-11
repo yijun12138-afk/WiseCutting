@@ -17,6 +17,9 @@
       <div class="smart-table-operate-block">
         <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
       </div>
+      <div class="smart-table-setting-block">
+        <TableOperator v-model="columns" :tableId="51007" :refresh="queryData" />
+      </div>
     </a-row>
     <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="unitId" :pagination="false" bordered>
       <template #bodyCell="{ record, column }">
@@ -45,6 +48,7 @@ import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
 import { unitApi } from '/@/api/business/basic/unit-api';
 import UnitFormModal from './components/unit-form-modal.vue';
+import TableOperator from '/@/components/support/table-operator/index.vue';
 import _ from 'lodash';
 
 const columns = ref([
