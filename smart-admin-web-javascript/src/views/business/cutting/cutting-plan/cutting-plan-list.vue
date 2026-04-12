@@ -170,13 +170,13 @@ function handleIssue(row){
 // 反下达功能
 function handleUndo(row){
    Modal.confirm({
-    title: '提示', content: `确定下达计划单【${row.planNo}】吗?`, okText: '确定', okType: 'primary',
+    title: '提示', content: `确定反下达计划单【${row.planNo}】吗?`, okText: '确定', okType: 'primary',
     onOk: async () => {
       try {
         SmartLoading.show(); 
         await cuttingPlanApi.updateStatus(row.planId, 1); 
         statusText(1)
-        message.success('下达成功'); 
+        message.success('反下达成功'); 
         queryData();
       }
       catch (e) {
