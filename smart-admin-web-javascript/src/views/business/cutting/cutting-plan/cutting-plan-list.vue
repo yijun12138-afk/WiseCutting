@@ -33,10 +33,8 @@
     </a-row>
     <a-table size="small" :dataSource="tableData" :columns="columns" :loading="tableLoading" rowKey="planId" :pagination="false" :scroll="{ x: 1510 }" bordered>
       <template #bodyCell="{ text, record, column }">
-        <template v-if="column.dataIndex === 'status'"">
-            <div class="status-cell" :style="{ backgroundColor: statusColor(text) }">
-              {{ statusText(text) }}
-            </div>
+        <template v-if="column.dataIndex === 'status'">
+          <a-tag :color="statusColor(text)"><template #icon><component :is="statusIcon(text)" /></template>{{ statusText(text) }}</a-tag>
         </template>
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
@@ -64,7 +62,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { message, Modal } from 'ant-design-vue';
-import { SearchOutlined, ReloadOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined, ReloadOutlined, PlusOutlined, ClockCircleFilled, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
 import { SmartLoading } from '/@/components/framework/smart-loading';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
@@ -107,10 +105,13 @@ function statusText(s) {
 }
 
 //颜色映射
-function statusColor(s) { 
-  return { 1: '#6a9df7', 2: '#d5a451', 3: '#84bf52'}
-  [s] ?? 'default';
- }
+function statusColor(s) {
+  return { 1: 'default', 2: 'processing', 3: 'success' }[s] ?? 'default';
+}
+
+function statusIcon(s) {
+  return { 1: ClockCircleFilled, 2: SyncOutlined, 3: CheckCircleOutlined }[s];
+}
 
  //重置
 function resetQuery() { 
@@ -201,12 +202,4 @@ function onDelete(row) {
 </script>
 
 <style scoped>
-  .status-cell {
-   width: 80px;
-   height: 45px;
-   margin: -9px;
-   text-align: center;
-   line-height: 45px;
-   border-bottom: 1.5px solid white;
-  }
 </style>

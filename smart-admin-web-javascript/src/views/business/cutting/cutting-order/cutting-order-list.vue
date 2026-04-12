@@ -40,7 +40,7 @@
       :pagination="false" bordered>
       <template #bodyCell="{ text, record, column }">
         <template v-if="column.dataIndex === 'status'">
-          <a-tag :color="statusColor(text)" class="custom-tag">{{ statusText(text) }}</a-tag>
+          <a-tag :color="statusColor(text)"><template #icon><component :is="statusIcon(text)" /></template>{{ statusText(text) }}</a-tag>
         </template>
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
@@ -67,7 +67,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { message, Modal } from 'ant-design-vue';
-import { SearchOutlined, ReloadOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined, ReloadOutlined, PlusOutlined, ClockCircleFilled, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
 import { SmartLoading } from '/@/components/framework/smart-loading';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
@@ -101,9 +101,12 @@ function statusText(s) {
   return { 1: '待裁', 2: '裁剪中', 3: '完成' }
   [s] ?? s; 
 }
-function statusColor(s) { 
-  return { 1: 'gray', 2: '#2196F3', 3: '#81C784' }
-  [s] ?? 'default'; 
+function statusColor(s) {
+  return { 1: 'default', 2: 'processing', 3: 'success' }
+  [s] ?? 'default';
+}
+function statusIcon(s) {
+  return { 1: ClockCircleFilled, 2: SyncOutlined, 3: CheckCircleOutlined }[s];
 }
 function resetQuery() { 
   Object.assign(queryForm, _.cloneDeep(queryFormState));
@@ -143,9 +146,4 @@ function onDelete(row) {
 }
 </script>
 <style scoped>
-.custom-tag {
-  font-size: 16px; /* 增大字体大小 */
-  padding: 4px 10px; /* 增大内边距 */
-  border-radius: 4px; /* 保持圆角效果 */
-}
 </style>

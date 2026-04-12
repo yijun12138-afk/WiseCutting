@@ -18,6 +18,9 @@
       <div class="smart-table-operate-block">
         <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
       </div>
+      <div class="smart-table-setting-block">
+        <TableOperator v-model="columns" :tableId="51006" :refresh="queryData" />
+      </div>
     </a-row>
     <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="sizeId" :pagination="false" bordered>
       <template #bodyCell="{ record, column }">
@@ -56,6 +59,7 @@
   import { sizeApi } from '/@/api/business/basic/size-api';
   import SizeFormModal from './components/size-form-modal.vue';
   import SizeGroupSelectModal from './components/size-group-select-modal.vue';
+  import TableOperator from '/@/components/support/table-operator/index.vue';
   import _ from 'lodash';
 
   const columns = ref([
