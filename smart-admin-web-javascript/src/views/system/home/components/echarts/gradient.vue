@@ -56,8 +56,9 @@
       series: [
         {
           name: '铺布完成', type: 'line', stack: 'Total', smooth: true,
+          color: '#38bdf8',
           lineStyle: { width: 0 }, showSymbol: false,
-          areaStyle: { opacity: 0.75, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(6,182,212,0.9)' }, { offset: 1, color: 'rgba(6,182,212,0.1)' }]) },
+          areaStyle: { opacity: 0.75, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(56,189,248,0.9)' }, { offset: 1, color: 'rgba(56,189,248,0.1)' }]) },
           emphasis: { focus: 'series' }, data: spreadData,
         },
         {
@@ -68,6 +69,7 @@
         },
         {
           name: '裁剪完工', type: 'line', stack: 'Total', smooth: true,
+          color: '#6366f1',
           lineStyle: { width: 0 }, showSymbol: false,
           label: { show: false },
           areaStyle: { opacity: 0.75, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(99,102,241,0.9)' }, { offset: 1, color: 'rgba(99,102,241,0.1)' }]) },

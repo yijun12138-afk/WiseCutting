@@ -10,6 +10,7 @@ import net.lab1024.sa.base.common.domain.PageResult;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
+import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +65,9 @@ public class ProductionOrderService {
             entity.setOrderQuantity(0);
             entity.setFinishQuantity(0);
             entity.setDeletedFlag(Boolean.FALSE);
+            if (SmartRequestUtil.getRequestUser() != null) {
+                entity.setCreateUserName(SmartRequestUtil.getRequestUser().getUserName());
+            }
             productionOrderDao.insert(entity);
         } else {
             productionOrderDao.updateById(entity);
@@ -136,6 +140,15 @@ public class ProductionOrderService {
         ProductionOrderEntity entity = productionOrderDao.selectById(orderId);
         if (entity == null) return ResponseDTO.userErrorParam("指令单不存在");
         entity.setStatus(3);
+        productionOrderDao.updateById(entity);
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> updateFinishQuantity(Long orderId, Integer finishQuantity) {
+        ProductionOrderEntity entity = productionOrderDao.selectById(orderId);
+        if (entity == null) return ResponseDTO.userErrorParam("指令单不存在");
+        entity.setFinishQuantity(finishQuantity);
         productionOrderDao.updateById(entity);
         return ResponseDTO.ok();
     }

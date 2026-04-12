@@ -287,9 +287,15 @@ function show(row) {
   // 编辑赋值
   if (row) {
     Object.assign(form, row);
-    // 编辑时：如果有面料ID，重新加载颜色列表
-    if (row.fabricId) {
-      onFabricChange(row.fabricId);
+    // 编辑时：根据 fabricNo 从列表中找到 fabricId，并加载颜色列表（不重置已有颜色）
+    if (row.fabricNo) {
+      const fabric = fabricList.value.find(f => f.fabricNo === row.fabricNo);
+      if (fabric) {
+        form.fabricId = fabric.fabricId;
+        fabricApi.skuList(fabric.fabricId).then(res => {
+          colorList.value = res.data || [];
+        }).catch(e => smartSentry.captureError(e));
+      }
     }
   }
   visible.value = true;

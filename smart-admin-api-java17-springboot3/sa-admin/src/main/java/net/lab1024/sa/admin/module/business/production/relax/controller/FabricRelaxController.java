@@ -48,4 +48,11 @@ public class FabricRelaxController {
     public ResponseDTO<String> batchDelete(@RequestBody List<Long> relaxIds) {
         return fabricRelaxService.batchDelete(relaxIds);
     }
+
+    @Operation(summary = "更新松布任务状态")
+    @PostMapping("/production/relax/updateStatus")
+    @SaCheckPermission("production:relax:add")
+    public ResponseDTO<String> updateStatus(@RequestParam Long relaxId, @RequestParam Integer status) {
+        return fabricRelaxService.updateStatus(relaxId, status);
+    }
 }

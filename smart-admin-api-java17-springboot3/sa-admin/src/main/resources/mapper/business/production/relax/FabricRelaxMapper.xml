@@ -19,6 +19,9 @@
             <if test="queryForm.status != null">
                 AND r.status = #{queryForm.status}
             </if>
+            <if test="queryForm.relaxType != null">
+                AND r.relax_type = #{queryForm.relaxType}
+            </if>
         </where>
         ORDER BY r.relax_id DESC
     </select>

@@ -53,6 +53,7 @@
             <a-button type="link" @click="openForm(record)">编辑</a-button>
             <a-button type="link" @click="onIssue(record)" v-if="record.status === 1">下达</a-button>
             <a-button type="link" @click="onUnissue(record)" v-if="record.status === 2">反下达</a-button>
+            <a-button type="link" @click="onUpdateFinishQty(record)">完工数量</a-button>
             <a-button type="link" danger @click="onDelete(record)">删除</a-button>
           </div>
         </template>
@@ -67,8 +68,8 @@
   </a-card>
 </template>
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import { message, Modal } from 'ant-design-vue';
+import { ref, reactive, onMounted, h } from 'vue';
+import { message, Modal, InputNumber } from 'ant-design-vue';
 import { SearchOutlined, ReloadOutlined, PlusOutlined, DeleteOutlined, CheckCircleOutlined,
   ClockCircleFilled, SyncOutlined } from '@ant-design/icons-vue';
 import { SmartLoading } from '/@/components/framework/smart-loading';
@@ -88,7 +89,7 @@ const columns = [
   { title: '完成数量', dataIndex: 'finishQuantity', width: 90 },
   { title: '状态', dataIndex: 'status', width: 80 },
   { title: '创建人', dataIndex: 'createUserName', width: 90 },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 150 },
+  { title: '操作', dataIndex: 'action', fixed: 'right', width: 200 },
 ];
 
 const queryFormState = { orderNo: '', styleNo: '', status: undefined, pageNum: 1, pageSize: 10 };
@@ -173,6 +174,30 @@ function onBatchComplete() {
     okText: '完工', okType: 'primary',
     onOk: async () => {
       try { SmartLoading.show(); await productionOrderApi.batchComplete(selectedRowKeys.value); message.success('批量完工成功'); queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function onUpdateFinishQty(row) {
+  let qty = row.finishQuantity || 0;
+  Modal.confirm({
+    title: `更新完工数量 - ${row.orderNo}`,
+    content: h('div', { style: 'padding: 8px 0' }, [
+      h('span', { style: 'margin-right: 8px' }, '完工数量：'),
+      h(InputNumber, {
+        value: qty,
+        min: 0,
+        max: row.orderQuantity,
+        style: 'width: 120px',
+        onChange: (val) => { qty = val; },
+      }),
+      h('span', { style: 'margin-left: 8px; color: #8c8c8c' }, `/ ${row.orderQuantity}`),
+    ]),
+    okText: '保存',
+    okType: 'primary',
+    onOk: async () => {
+      try { SmartLoading.show(); await productionOrderApi.updateFinishQuantity(row.orderId, qty); message.success('更新成功'); queryData(); }
       catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
     },
   });

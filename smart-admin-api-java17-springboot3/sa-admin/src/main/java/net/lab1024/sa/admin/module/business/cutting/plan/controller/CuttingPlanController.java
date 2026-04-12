@@ -12,6 +12,8 @@ import net.lab1024.sa.base.common.domain.PageResult;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Tag(name = "裁剪数据-裁剪计划")
 public class CuttingPlanController {
@@ -41,5 +43,17 @@ public class CuttingPlanController {
     @PostMapping("/cutting/plan/updateStatus")
     public ResponseDTO<String> updateStatus(@RequestParam Long planId, @RequestParam Integer status) {
         return cuttingPlanService.updateStatus(planId, status);
+    }
+
+    @Operation(summary = "批量删除裁剪计划")
+    @PostMapping("/cutting/plan/batchDelete")
+    public ResponseDTO<String> batchDelete(@RequestBody List<Long> planIds) {
+        return cuttingPlanService.batchDelete(planIds);
+    }
+
+    @Operation(summary = "批量完成裁剪计划")
+    @PostMapping("/cutting/plan/batchComplete")
+    public ResponseDTO<String> batchComplete(@RequestBody List<Long> planIds) {
+        return cuttingPlanService.batchComplete(planIds);
     }
 }

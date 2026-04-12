@@ -48,4 +48,11 @@ public class CustomerController {
     public ResponseDTO<String> delete(@PathVariable Long customerId) {
         return customerService.delete(customerId);
     }
+
+    @Operation(summary = "启用/停用客户")
+    @PostMapping("/basic/customer/updateDisabledFlag")
+    @SaCheckPermission("basic:customer:add")
+    public ResponseDTO<String> updateDisabledFlag(@RequestParam Long customerId, @RequestParam Boolean disabledFlag) {
+        return customerService.updateDisabledFlag(customerId, disabledFlag);
+    }
 }

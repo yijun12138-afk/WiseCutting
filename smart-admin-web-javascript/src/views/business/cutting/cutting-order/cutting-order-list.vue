@@ -27,18 +27,21 @@
       <div class="smart-table-operate-block">
         <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
         <a-button @click="onExport" style="margin-left:8px"><DownloadOutlined />导出Excel</a-button>
+        <a-button :disabled="selectedRowKeys.length === 0" @click="onBatchComplete" style="margin-left:8px">批量完成{{ selectedRowKeys.length > 0 ? `(${selectedRowKeys.length})` : '' }}</a-button>
+        <a-button danger :disabled="selectedRowKeys.length === 0" @click="onBatchDelete" style="margin-left:8px"><DeleteOutlined />批量删除{{ selectedRowKeys.length > 0 ? `(${selectedRowKeys.length})` : '' }}</a-button>
       </div>
        <div class="smart-table-setting-block">
         <TableOperator v-model="columns" :tableId="TABLE_ID_CONST.BUSINESS.CUTTING.CUTTINGORDER" :refresh="queryData" />
       </div>
     </a-row>
-    <a-table 
-       size="small" 
-      :dataSource="tableData" 
-      :columns="columns" 
+    <a-table
+       size="small"
+      :dataSource="tableData"
+      :columns="columns"
       :loading="tableLoading"
-      rowKey="cuttingOrderId" 
-      :pagination="false" bordered>
+      rowKey="cuttingOrderId"
+      :pagination="false" bordered
+      :row-selection="rowSelection">
       <template #bodyCell="{ text, record, column }">
         <template v-if="column.dataIndex === 'status'">
           <a-tag :color="statusColor(text)"><template #icon><component :is="statusIcon(text)" /></template>{{ statusText(text) }}</a-tag>
@@ -46,6 +49,8 @@
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="openForm(record)">编辑</a-button>
+            <a-button type="link" v-if="record.status === 1" @click="handleUpdateStatus(record, 2)">开始裁剪</a-button>
+            <a-button type="link" v-if="record.status === 2" @click="handleUpdateStatus(record, 3)">完成</a-button>
             <a-button type="link" danger @click="onDelete(record)">删除</a-button>
           </div>
         </template>
@@ -68,7 +73,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { message, Modal } from 'ant-design-vue';
-import { SearchOutlined, ReloadOutlined, PlusOutlined, DownloadOutlined, ClockCircleFilled, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined, ReloadOutlined, PlusOutlined, DownloadOutlined, DeleteOutlined, ClockCircleFilled, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
 import { SmartLoading } from '/@/components/framework/smart-loading';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
@@ -89,7 +94,7 @@ const columns = [
   { title: '层数', dataIndex: 'layers', width: 70 },
   { title: '面料编号', dataIndex: 'fabricNo', width: 110 },
   { title: '状态', dataIndex: 'status', width: 80 },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
+  { title: '操作', dataIndex: 'action', fixed: 'right', width: 180 },
 ];
 
 const queryFormState = { cuttingOrderNo: '', orderNo: '', status: undefined, pageNum: 1, pageSize: 10 };
@@ -97,6 +102,11 @@ const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);
 const tableLoading = ref(false)
+const selectedRowKeys = ref([]);
+const rowSelection = {
+  selectedRowKeys,
+  onChange: (keys) => { selectedRowKeys.value = keys; },
+};
 
 function statusText(s) { 
   return { 1: '待裁', 2: '裁剪中', 3: '完成' }
@@ -157,6 +167,37 @@ function onDelete(row) {
     title: '提示', content: `确定删除裁床单【${row.cuttingOrderNo}】吗?`, okText: '删除', okType: 'danger',
     onOk: async () => {
       try { SmartLoading.show(); await cuttingOrderApi.delete(row.cuttingOrderId); message.success('删除成功'); queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function handleUpdateStatus(row, status) {
+  const statusLabel = { 2: '开始裁剪', 3: '完成' }[status];
+  Modal.confirm({
+    title: '提示', content: `确定将裁床单【${row.cuttingOrderNo}】标记为"${statusLabel}"吗?`, okText: '确定', okType: 'primary',
+    onOk: async () => {
+      try { SmartLoading.show(); await cuttingOrderApi.updateStatus(row.cuttingOrderId, status); message.success('操作成功'); queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function onBatchDelete() {
+  Modal.confirm({
+    title: '提示', content: `确定批量删除选中的 ${selectedRowKeys.value.length} 条裁床单吗?`, okText: '删除', okType: 'danger',
+    onOk: async () => {
+      try { SmartLoading.show(); await cuttingOrderApi.batchDelete(selectedRowKeys.value); message.success('批量删除成功'); selectedRowKeys.value = []; queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function onBatchComplete() {
+  Modal.confirm({
+    title: '提示', content: `确定批量完成选中的 ${selectedRowKeys.value.length} 条裁床单吗?`, okText: '确定', okType: 'primary',
+    onOk: async () => {
+      try { SmartLoading.show(); await cuttingOrderApi.batchComplete(selectedRowKeys.value); message.success('批量完成成功'); selectedRowKeys.value = []; queryData(); }
       catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
     },
   });

@@ -57,6 +57,32 @@ public class CuttingPlanService {
         return ResponseDTO.ok();
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> batchDelete(List<Long> planIds) {
+        if (planIds == null || planIds.isEmpty()) return ResponseDTO.userErrorParam("请选择要删除的计划");
+        for (Long planId : planIds) {
+            CuttingPlanEntity entity = cuttingPlanDao.selectById(planId);
+            if (entity != null) {
+                entity.setDeletedFlag(Boolean.TRUE);
+                cuttingPlanDao.updateById(entity);
+            }
+        }
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> batchComplete(List<Long> planIds) {
+        if (planIds == null || planIds.isEmpty()) return ResponseDTO.userErrorParam("请选择要完成的计划");
+        for (Long planId : planIds) {
+            CuttingPlanEntity entity = cuttingPlanDao.selectById(planId);
+            if (entity != null) {
+                entity.setStatus(3);
+                cuttingPlanDao.updateById(entity);
+            }
+        }
+        return ResponseDTO.ok();
+    }
+
     private String getStatusName(Integer status) {
         if (status == null)
             return "";

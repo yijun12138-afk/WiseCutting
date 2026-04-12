@@ -49,7 +49,10 @@ public class FabricService {
     }
 
     public ResponseDTO<List<FabricVO>> queryAll() {
-        return ResponseDTO.ok(fabricDao.queryAll());
+        List<FabricVO> list = fabricDao.queryAll();
+        return ResponseDTO.ok(list.stream()
+                .filter(f -> !Boolean.TRUE.equals(f.getDisabledFlag()))
+                .collect(Collectors.toList()));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -79,6 +82,15 @@ public class FabricService {
 
     public ResponseDTO<List<FabricSkuVO>> querySkuList(Long fabricId) {
         return ResponseDTO.ok(fabricSkuDao.queryByFabricId(fabricId));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> updateDisabledFlag(Long fabricId, Boolean disabledFlag) {
+        FabricEntity entity = fabricDao.selectById(fabricId);
+        if (entity == null) return ResponseDTO.userErrorParam("面料不存在");
+        entity.setDisabledFlag(disabledFlag);
+        fabricDao.updateById(entity);
+        return ResponseDTO.ok();
     }
 
     @Transactional(rollbackFor = Exception.class)

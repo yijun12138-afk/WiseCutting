@@ -13,6 +13,7 @@ import net.lab1024.sa.base.common.domain.PageResult;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
+import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +48,9 @@ public class StyleColorService {
         StyleColorEntity entity = SmartBeanUtil.copy(form, StyleColorEntity.class);
         if (form.getColorId() == null) {
             entity.setDeletedFlag(Boolean.FALSE);
+            if (SmartRequestUtil.getRequestUser() != null) {
+                entity.setCreateUserName(SmartRequestUtil.getRequestUser().getUserName());
+            }
             styleColorDao.insert(entity);
         } else {
             styleColorDao.updateById(entity);

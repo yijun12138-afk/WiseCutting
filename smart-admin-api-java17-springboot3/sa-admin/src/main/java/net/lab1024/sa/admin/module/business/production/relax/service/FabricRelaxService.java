@@ -64,6 +64,15 @@ public class FabricRelaxService {
         return ResponseDTO.ok();
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> updateStatus(Long relaxId, Integer status) {
+        FabricRelaxEntity entity = fabricRelaxDao.selectById(relaxId);
+        if (entity == null) return ResponseDTO.userErrorParam("松布任务不存在");
+        entity.setStatus(status);
+        fabricRelaxDao.updateById(entity);
+        return ResponseDTO.ok();
+    }
+
     private String getStatusName(Integer status) {
         if (status == null) return "";
         return switch (status) {

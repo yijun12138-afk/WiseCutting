@@ -75,6 +75,15 @@ public class GarmentService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> updateDisabledFlag(Long garmentId, Boolean disabledFlag) {
+        GarmentEntity entity = garmentDao.selectById(garmentId);
+        if (entity == null) return ResponseDTO.userErrorParam("成衣不存在");
+        entity.setDisabledFlag(disabledFlag);
+        garmentDao.updateById(entity);
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> delete(Long garmentId) {
         GarmentEntity entity = garmentDao.selectById(garmentId);
         if (entity == null) return ResponseDTO.userErrorParam("成衣不存在");

@@ -83,4 +83,11 @@ public class ProductionOrderController {
     public ResponseDTO<String> batchComplete(@RequestBody List<Long> orderIds) {
         return productionOrderService.batchComplete(orderIds);
     }
+
+    @Operation(summary = "更新完工数量")
+    @PostMapping("/production/order/updateFinishQuantity")
+    @SaCheckPermission("production:order:update")
+    public ResponseDTO<String> updateFinishQuantity(@RequestParam Long orderId, @RequestParam Integer finishQuantity) {
+        return productionOrderService.updateFinishQuantity(orderId, finishQuantity);
+    }
 }

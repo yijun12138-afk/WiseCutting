@@ -54,4 +54,11 @@ public class FabricController {
     public ResponseDTO<String> delete(@PathVariable Long fabricId) {
         return fabricService.delete(fabricId);
     }
+
+    @Operation(summary = "启用/停用面料")
+    @PostMapping("/basic/fabric/updateDisabledFlag")
+    @SaCheckPermission("basic:fabric:add")
+    public ResponseDTO<String> updateDisabledFlag(@RequestParam Long fabricId, @RequestParam Boolean disabledFlag) {
+        return fabricService.updateDisabledFlag(fabricId, disabledFlag);
+    }
 }

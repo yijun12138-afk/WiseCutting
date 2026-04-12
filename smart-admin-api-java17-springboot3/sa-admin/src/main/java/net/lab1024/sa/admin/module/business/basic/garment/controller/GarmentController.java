@@ -47,4 +47,11 @@ public class GarmentController {
     public ResponseDTO<String> delete(@PathVariable Long garmentId) {
         return garmentService.delete(garmentId);
     }
+
+    @Operation(summary = "启用/停用成衣")
+    @PostMapping("/basic/garment/updateDisabledFlag")
+    @SaCheckPermission("basic:garment:add")
+    public ResponseDTO<String> updateDisabledFlag(@RequestParam Long garmentId, @RequestParam Boolean disabledFlag) {
+        return garmentService.updateDisabledFlag(garmentId, disabledFlag);
+    }
 }

@@ -20,5 +20,6 @@ public class FabricRelaxAddForm {
     private java.time.LocalDateTime actualStartTime;
     private java.time.LocalDateTime actualEndTime;
     private Integer status;
+    private Integer relaxType;
     private String remark;
 }

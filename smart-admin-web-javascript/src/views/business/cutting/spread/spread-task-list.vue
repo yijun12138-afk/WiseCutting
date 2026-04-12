@@ -33,7 +33,10 @@
           <template #icon><PlusOutlined /></template>
           新建铺布任务
         </a-button>
-        <a-button danger :disabled="selectedRowKeys.length === 0" @click="onBatchDelete">
+        <a-button :disabled="selectedRowKeys.length === 0" @click="onBatchComplete" style="margin-left:8px">
+          批量完成{{ selectedRowKeys.length > 0 ? `(${selectedRowKeys.length})` : '' }}
+        </a-button>
+        <a-button danger :disabled="selectedRowKeys.length === 0" @click="onBatchDelete" style="margin-left:8px">
           <template #icon><DeleteOutlined /></template>
           批量删除{{ selectedRowKeys.length > 0 ? `(${selectedRowKeys.length})` : '' }}
         </a-button>
@@ -92,16 +95,19 @@
 
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
-            <a-button type="link" size="small" @click="openForm(record)" v-if="!record.issuedFlag">
+            <a-button type="link" size="small" @click="openForm(record)">
               <EditOutlined />编辑
             </a-button>
             <a-button type="link" size="small" @click="onIssue(record)" v-if="!record.issuedFlag">
               <SendOutlined />下达
             </a-button>
+            <a-button type="link" size="small" @click="onUnissue(record)" v-if="record.issuedFlag">
+              <RollbackOutlined />反下达
+            </a-button>
             <a-button type="link" size="small" @click="openComplete(record)" v-if="record.issuedFlag && record.status !== 2">
               <CheckOutlined />完成
             </a-button>
-            <a-button type="link" size="small" danger @click="onDelete(record)" v-if="!record.issuedFlag">
+            <a-button type="link" size="small" danger @click="onDelete(record)">
               <DeleteOutlined />删除
             </a-button>
           </div>
@@ -126,7 +132,7 @@ import { ref, reactive, onMounted } from 'vue';
 import { message, Modal } from 'ant-design-vue';
 import {
   SearchOutlined, ReloadOutlined, PlusOutlined,
-  SendOutlined, EditOutlined, CheckOutlined, DeleteOutlined,
+  SendOutlined, EditOutlined, CheckOutlined, DeleteOutlined, RollbackOutlined,
   FileTextOutlined, CheckCircleOutlined, SyncOutlined, ClockCircleFilled,
 } from '@ant-design/icons-vue';
 import { SmartLoading } from '/@/components/framework/smart-loading';
@@ -148,7 +154,7 @@ const columns = [
   { title: '任务状态', dataIndex: 'status', width: 110, align: 'center' },
   { title: '下达状态', dataIndex: 'issuedFlag', width: 110, align: 'center' },
   { title: '创建时间', dataIndex: 'createTime', width: 160 },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 180 },
+  { title: '操作', dataIndex: 'action', fixed: 'right', width: 220 },
 ];
 
 const statusTextMap = { 0: '待作业', 1: '进行中', 2: '已完成' };
@@ -186,7 +192,7 @@ function openComplete(row) { completeModal.value.show(row); }
 function onIssue(row) {
   Modal.confirm({
     title: '下达铺布任务',
-    content: `确定下达任务【${row.orderNo}】吗？下达后任务不可修改。`,
+    content: `确定下达任务【${row.orderNo}】吗？`,
     okText: '立即下达',
     okType: 'primary',
     cancelText: '取消',
@@ -195,6 +201,24 @@ function onIssue(row) {
         SmartLoading.show();
         await fabricSpreadApi.saveAndIssue(row);
         message.success('下达成功！任务已推送至车间');
+        queryData();
+      } catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function onUnissue(row) {
+  Modal.confirm({
+    title: '反下达铺布任务',
+    content: `确定反下达任务【${row.orderNo}】吗？反下达后任务将回到待作业状态。`,
+    okText: '确定反下达',
+    okType: 'primary',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        SmartLoading.show();
+        await fabricSpreadApi.unissue(row.spreadId);
+        message.success('反下达成功');
         queryData();
       } catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
     },
@@ -222,7 +246,7 @@ function onDelete(row) {
 function onBatchDelete() {
   Modal.confirm({
     title: '批量删除确认',
-    content: `确定批量删除选中的 ${selectedRowKeys.value.length} 条铺布任务吗？删除后铺布工作台中对应数据也将一并删除。`,
+    content: `确定批量删除选中的 ${selectedRowKeys.value.length} 条铺布任务吗？`,
     okText: '确认删除',
     okType: 'danger',
     cancelText: '取消',
@@ -231,6 +255,25 @@ function onBatchDelete() {
         SmartLoading.show();
         await fabricSpreadApi.batchDelete(selectedRowKeys.value);
         message.success('批量删除成功');
+        selectedRowKeys.value = [];
+        queryData();
+      } catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function onBatchComplete() {
+  Modal.confirm({
+    title: '批量完成确认',
+    content: `确定批量完成选中的 ${selectedRowKeys.value.length} 条铺布任务吗？`,
+    okText: '确认完成',
+    okType: 'primary',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        SmartLoading.show();
+        await fabricSpreadApi.batchComplete(selectedRowKeys.value);
+        message.success('批量完成成功');
         selectedRowKeys.value = [];
         queryData();
       } catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }

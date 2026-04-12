@@ -43,6 +43,9 @@
         <template v-else-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="openForm(record)">编辑</a-button>
+            <a-button type="link" :style="{ color: record.disabledFlag ? '#52c41a' : '#faad14' }" @click="onToggleDisabled(record)">
+              {{ record.disabledFlag ? '启用' : '停用' }}
+            </a-button>
             <a-button type="link" danger @click="onDelete(record)">删除</a-button>
           </div>
         </template>
@@ -86,7 +89,7 @@
     { title: '状态', dataIndex: 'disabledFlag', width: 80 },
     { title: '备注', dataIndex: 'remark', ellipsis: true, width: 150 },
     { title: '创建时间', dataIndex: 'createTime', width: 160 },
-    { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
+    { title: '操作', dataIndex: 'action', fixed: 'right', width: 160 },
   ]);
 
   const queryFormState = { searchWord: '', disabledFlag: undefined, pageNum: 1, pageSize: 10 };
@@ -158,6 +161,17 @@
         } finally {
           SmartLoading.hide();
         }
+      },
+    });
+  }
+
+  function onToggleDisabled(row) {
+    const action = row.disabledFlag ? '启用' : '停用';
+    Modal.confirm({
+      title: '提示', content: `确定${action}客户【${row.customerName}】吗?`, okText: action, okType: 'primary',
+      onOk: async () => {
+        try { SmartLoading.show(); await customerApi.updateDisabledFlag(row.customerId, !row.disabledFlag); message.success(`${action}成功`); queryData(); }
+        catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
       },
     });
   }

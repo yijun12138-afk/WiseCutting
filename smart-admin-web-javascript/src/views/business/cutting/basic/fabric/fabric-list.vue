@@ -32,6 +32,9 @@
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="openForm(record)">编辑</a-button>
+            <a-button type="link" :style="{ color: record.disabledFlag ? '#52c41a' : '#faad14' }" @click="onToggleDisabled(record)">
+              {{ record.disabledFlag ? '启用' : '停用' }}
+            </a-button>
             <a-button type="link" danger @click="onDelete(record)">删除</a-button>
           </div>
         </template>
@@ -64,7 +67,7 @@ const columns = ref([
   { title: '颜色', dataIndex: 'colorDisplay', width: 120 },
   { title: '价格', dataIndex: 'priceDisplay', width: 90 },
   { title: '停用标识', dataIndex: 'disabledFlag', width: 90 },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 120 },
+  { title: '操作', dataIndex: 'action', fixed: 'right', width: 160 },
 ]);
 const queryFormState = { searchWord: '', disabledFlag: undefined, pageNum: 1, pageSize: 10 };
 const queryForm = reactive(_.cloneDeep(queryFormState));
@@ -95,6 +98,16 @@ async function queryData() {
 onMounted(queryData);
 const formModal = ref();
 function openForm(row) { formModal.value.show(row); }
+function onToggleDisabled(row) {
+  const action = row.disabledFlag ? '启用' : '停用';
+  Modal.confirm({
+    title: '提示', content: `确定${action}面料【${row.fabricName}】吗?`, okText: action, okType: 'primary',
+    onOk: async () => {
+      try { SmartLoading.show(); await fabricApi.updateDisabledFlag(row.fabricId, !row.disabledFlag); message.success(`${action}成功`); queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
 function onDelete(row) {
   Modal.confirm({ title: '提示', content: `确定删除【${row.fabricName}】吗?`, okText: '删除', okType: 'danger',
     onOk: async () => { try { SmartLoading.show(); await fabricApi.delete(row.fabricId); message.success('删除成功'); queryData(); } catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); } } });

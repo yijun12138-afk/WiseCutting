@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import net.lab1024.sa.admin.module.business.cutting.order.domain.vo.CuttingOrderExcelVO;
 import net.lab1024.sa.base.common.util.SmartExcelUtil;
+import net.lab1024.sa.base.common.util.SmartRequestUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -44,6 +45,9 @@ public class CuttingOrderService {
             entity.setCuttingOrderNo("CO" + dateStr + String.format("%04d", count));
             entity.setStatus(1);
             entity.setDeletedFlag(Boolean.FALSE);
+            if (SmartRequestUtil.getRequestUser() != null) {
+                entity.setCreateUserName(SmartRequestUtil.getRequestUser().getUserName());
+            }
             cuttingOrderDao.insert(entity);
         } else {
             cuttingOrderDao.updateById(entity);
@@ -71,6 +75,41 @@ public class CuttingOrderService {
             return excel;
         }).toList();
         SmartExcelUtil.exportExcel(response, "裁床单列表.xlsx", "裁床单", CuttingOrderExcelVO.class, excelList);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> updateStatus(Long cuttingOrderId, Integer status) {
+        CuttingOrderEntity entity = cuttingOrderDao.selectById(cuttingOrderId);
+        if (entity == null) return ResponseDTO.userErrorParam("裁床单不存在");
+        entity.setStatus(status);
+        cuttingOrderDao.updateById(entity);
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> batchDelete(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return ResponseDTO.userErrorParam("请选择要删除的裁床单");
+        for (Long id : ids) {
+            CuttingOrderEntity entity = cuttingOrderDao.selectById(id);
+            if (entity != null) {
+                entity.setDeletedFlag(Boolean.TRUE);
+                cuttingOrderDao.updateById(entity);
+            }
+        }
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> batchComplete(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return ResponseDTO.userErrorParam("请选择要完成的裁床单");
+        for (Long id : ids) {
+            CuttingOrderEntity entity = cuttingOrderDao.selectById(id);
+            if (entity != null) {
+                entity.setStatus(3);
+                cuttingOrderDao.updateById(entity);
+            }
+        }
+        return ResponseDTO.ok();
     }
 
     private String getStatusName(Integer status) {

@@ -7,5 +7,6 @@ import net.lab1024.sa.base.common.domain.PageParam;
 public class FabricRelaxQueryForm extends PageParam {
     private String orderNo;
     private Integer status;
+    private Integer relaxType;
     private Boolean deletedFlag;
 }

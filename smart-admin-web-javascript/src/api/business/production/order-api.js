@@ -10,4 +10,5 @@ export const productionOrderApi = {
   delete: (orderId) => getRequest(`/production/order/delete/${orderId}`),
   batchDelete: (ids) => postRequest('/production/order/batchDelete', ids),
   batchComplete: (ids) => postRequest('/production/order/batchComplete', ids),
+  updateFinishQuantity: (orderId, qty) => postRequest(`/production/order/updateFinishQuantity?orderId=${orderId}&finishQuantity=${qty}`),
 };

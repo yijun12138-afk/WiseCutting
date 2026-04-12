@@ -31,8 +31,10 @@ public class FabricRelaxEntity {
     private LocalDateTime relaxTime;
     private LocalDateTime actualStartTime;
     private LocalDateTime actualEndTime;
-    /** 状态: 0-计划, 1-进行中, 2-完成 */
+    /** 状态: 0-未开始, 1-进行中, 2-静置完成, 3-已结束 */
     private Integer status;
+    /** 类型: 0-松布计划, 1-松布任务 */
+    private Integer relaxType;
     private Boolean deletedFlag;
     private String remark;
     private Long createUserId;

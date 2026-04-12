@@ -77,10 +77,13 @@
           <span>{{ text ? text + ' h' : '-' }}</span>
         </template>
         <template v-if="column.dataIndex === 'action'">
-          <div class="smart-table-operate">
+          <div class="smart-table-operate" style="flex-wrap:nowrap">
             <a-button type="link" size="small" @click="openForm(record)">
               <EditOutlined />编辑
             </a-button>
+            <a-button type="link" size="small" v-if="record.status === 0" @click="handleUpdateStatus(record, 1)">开始</a-button>
+            <a-button type="link" size="small" v-if="record.status === 1" @click="handleUpdateStatus(record, 2)">静置完成</a-button>
+            <a-button type="link" size="small" v-if="record.status === 2" @click="handleUpdateStatus(record, 3)">结束</a-button>
             <a-button type="link" size="small" danger @click="onDelete(record)">
               <DeleteOutlined />删除
             </a-button>
@@ -124,10 +127,10 @@ const columns = [
   { title: '松布时间(h)', dataIndex: 'relaxHours', width: 110 },
   { title: '实际开始时间', dataIndex: 'actualStartTime', width: 160 },
   { title: '实际结束时间', dataIndex: 'actualEndTime', width: 160 },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 130 },
+  { title: '操作', dataIndex: 'action', fixed: 'right', width: 200 },
 ];
 
-const queryFormState = { orderNo: '', status: undefined, pageNum: 1, pageSize: 10 };
+const queryFormState = { orderNo: '', status: undefined, pageNum: 1, pageSize: 10, relaxType: 1 };
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);
@@ -167,7 +170,18 @@ async function queryData() {
 onMounted(queryData);
 
 const formModal = ref();
-function openForm(row) { formModal.value.show(row); }
+function openForm(row) { formModal.value.show(row, 1); }
+
+function handleUpdateStatus(row, status) {
+  const label = { 1: '开始', 2: '静置完成', 3: '结束' }[status];
+  Modal.confirm({
+    title: '提示', content: `确定将该松布任务标记为"${label}"吗?`, okText: '确定', okType: 'primary',
+    onOk: async () => {
+      try { SmartLoading.show(); await fabricRelaxApi.updateStatus(row.relaxId, status); message.success('操作成功'); queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
 
 function onDelete(row) {
   Modal.confirm({

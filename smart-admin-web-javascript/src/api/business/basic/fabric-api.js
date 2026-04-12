@@ -6,4 +6,5 @@ export const fabricApi = {
   skuList: (fabricId) => getRequest(`/basic/fabric/skuList/${fabricId}`),
   addOrUpdate: (param) => postRequest('/basic/fabric/addOrUpdate', param),
   delete: (id) => getRequest(`/basic/fabric/delete/${id}`),
+  updateDisabledFlag: (id, flag) => postRequest(`/basic/fabric/updateDisabledFlag?fabricId=${id}&disabledFlag=${flag}`),
 };

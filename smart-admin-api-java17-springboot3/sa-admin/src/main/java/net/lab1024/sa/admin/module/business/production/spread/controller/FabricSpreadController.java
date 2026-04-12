@@ -70,4 +70,18 @@ public class FabricSpreadController {
     public ResponseDTO<String> batchDelete(@RequestBody List<Long> spreadIds) {
         return fabricSpreadService.batchDelete(spreadIds);
     }
+
+    @Operation(summary = "反下达铺布任务")
+    @GetMapping("/production/spread/unissue/{spreadId}")
+    @SaCheckPermission("production:spread:issue")
+    public ResponseDTO<String> unissue(@PathVariable Long spreadId) {
+        return fabricSpreadService.unissue(spreadId);
+    }
+
+    @Operation(summary = "批量完成铺布任务")
+    @PostMapping("/production/spread/batchComplete")
+    @SaCheckPermission("production:spread:query")
+    public ResponseDTO<String> batchComplete(@RequestBody List<Long> spreadIds) {
+        return fabricSpreadService.batchComplete(spreadIds);
+    }
 }

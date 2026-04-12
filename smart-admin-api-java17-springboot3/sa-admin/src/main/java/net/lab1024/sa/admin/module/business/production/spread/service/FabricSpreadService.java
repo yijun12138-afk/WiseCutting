@@ -89,6 +89,29 @@ public class FabricSpreadService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> unissue(Long spreadId) {
+        FabricSpreadEntity entity = fabricSpreadDao.selectById(spreadId);
+        if (entity == null) return ResponseDTO.userErrorParam("铺布任务不存在");
+        entity.setIssuedFlag(Boolean.FALSE);
+        entity.setStatus(0);
+        fabricSpreadDao.updateById(entity);
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> batchComplete(List<Long> spreadIds) {
+        if (spreadIds == null || spreadIds.isEmpty()) return ResponseDTO.userErrorParam("请选择要完成的任务");
+        for (Long spreadId : spreadIds) {
+            FabricSpreadEntity entity = fabricSpreadDao.selectById(spreadId);
+            if (entity != null) {
+                entity.setStatus(2);
+                fabricSpreadDao.updateById(entity);
+            }
+        }
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> batchDelete(List<Long> spreadIds) {
         if (spreadIds == null || spreadIds.isEmpty()) {
             return ResponseDTO.userErrorParam("请选择要删除的任务");

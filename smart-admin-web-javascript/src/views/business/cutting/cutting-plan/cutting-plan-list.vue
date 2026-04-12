@@ -26,12 +26,14 @@
     <a-row class="smart-table-btn-block">
       <div class="smart-table-operate-block">
         <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
+        <a-button :disabled="selectedRowKeys.length === 0" @click="onBatchComplete" style="margin-left:8px">批量完成{{ selectedRowKeys.length > 0 ? `(${selectedRowKeys.length})` : '' }}</a-button>
+        <a-button danger :disabled="selectedRowKeys.length === 0" @click="onBatchDelete" style="margin-left:8px"><DeleteOutlined />批量删除{{ selectedRowKeys.length > 0 ? `(${selectedRowKeys.length})` : '' }}</a-button>
       </div>
       <div class="smart-table-setting-block">
         <TableOperator v-model="columns" :tableId="TABLE_ID_CONST.BUSINESS.CUTTING.CUTTINGPLAN" :refresh="queryData" />
       </div>
     </a-row>
-    <a-table size="small" :dataSource="tableData" :columns="columns" :loading="tableLoading" rowKey="planId" :pagination="false" :scroll="{ x: 1510 }" bordered>
+    <a-table size="small" :dataSource="tableData" :columns="columns" :loading="tableLoading" rowKey="planId" :pagination="false" :scroll="{ x: 1510 }" bordered :row-selection="rowSelection">
       <template #bodyCell="{ text, record, column }">
         <template v-if="column.dataIndex === 'status'">
           <a-tag :color="statusColor(text)"><template #icon><component :is="statusIcon(text)" /></template>{{ statusText(text) }}</a-tag>
@@ -62,7 +64,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { message, Modal } from 'ant-design-vue';
-import { SearchOutlined, ReloadOutlined, PlusOutlined, ClockCircleFilled, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined, ReloadOutlined, PlusOutlined, DeleteOutlined, ClockCircleFilled, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
 import { SmartLoading } from '/@/components/framework/smart-loading';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
@@ -98,6 +100,11 @@ const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);
 const tableLoading = ref(false)
+const selectedRowKeys = ref([]);
+const rowSelection = {
+  selectedRowKeys,
+  onChange: (keys) => { selectedRowKeys.value = keys; },
+};
 //状态映射
 function statusText(s) { 
   return { 1: '计划', 2: '进行中', 3: '完成' }
@@ -195,6 +202,26 @@ function onDelete(row) {
     title: '提示', content: `确定删除计划单【${row.planNo}】吗?`, okText: '删除', okType: 'danger',
     onOk: async () => {
       try { SmartLoading.show(); await cuttingPlanApi.delete(row.planId); message.success('删除成功'); queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function onBatchDelete() {
+  Modal.confirm({
+    title: '提示', content: `确定批量删除选中的 ${selectedRowKeys.value.length} 条计划吗?`, okText: '删除', okType: 'danger',
+    onOk: async () => {
+      try { SmartLoading.show(); await cuttingPlanApi.batchDelete(selectedRowKeys.value); message.success('批量删除成功'); selectedRowKeys.value = []; queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function onBatchComplete() {
+  Modal.confirm({
+    title: '提示', content: `确定批量完成选中的 ${selectedRowKeys.value.length} 条计划吗?`, okText: '确定', okType: 'primary',
+    onOk: async () => {
+      try { SmartLoading.show(); await cuttingPlanApi.batchComplete(selectedRowKeys.value); message.success('批量完成成功'); selectedRowKeys.value = []; queryData(); }
       catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
     },
   });

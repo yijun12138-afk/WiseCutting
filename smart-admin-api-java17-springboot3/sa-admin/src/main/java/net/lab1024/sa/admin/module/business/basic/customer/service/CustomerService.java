@@ -52,6 +52,15 @@ public class CustomerService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> updateDisabledFlag(Long customerId, Boolean disabledFlag) {
+        CustomerEntity entity = customerDao.selectById(customerId);
+        if (entity == null) return ResponseDTO.userErrorParam("客户不存在");
+        entity.setDisabledFlag(disabledFlag);
+        customerDao.updateById(entity);
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> delete(Long customerId) {
         CustomerEntity entity = customerDao.selectById(customerId);
         if (entity == null) {

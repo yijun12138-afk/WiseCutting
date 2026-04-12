@@ -69,7 +69,7 @@ const formDefault = {
   fabricId: undefined, fabricNo: '', fabricName: '', colorName: '',
   requireLength: undefined, actualLength: undefined, relaxHours: undefined,
   relaxTime: undefined, actualStartTime: undefined, actualEndTime: undefined,
-  status: 0, remark: '',
+  status: 0, relaxType: 1, remark: '',
 };
 const form = reactive({ ...formDefault });
 const rules = { orderId: [{ required: true, message: '请选择指令单' }] };
@@ -103,8 +103,9 @@ async function onFabricChange(val) {
   } catch (e) { smartSentry.captureError(e); }
 }
 
-function show(row) {
+function show(row, relaxType = 1) {
   Object.assign(form, formDefault);
+  form.relaxType = relaxType;
   if (row) Object.assign(form, row);
   visible.value = true;
   nextTick(() => formRef.value?.clearValidate());

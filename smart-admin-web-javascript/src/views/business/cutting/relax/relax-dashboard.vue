@@ -207,7 +207,7 @@ function startScroll() {
 
 async function loadData() {
   try {
-    const res = await fabricRelaxApi.query({ pageNum: 1, pageSize: 500 });
+    const res = await fabricRelaxApi.query({ pageNum: 1, pageSize: 500, relaxType: 1 });
     allList = res.data?.list || [];
 
     const pending = allList.filter(r => r.status === 0);

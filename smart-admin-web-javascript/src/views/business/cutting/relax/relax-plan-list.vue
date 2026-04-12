@@ -49,6 +49,9 @@
             <a-button type="link" size="small" @click="openForm(record)">
               <EditOutlined />编辑
             </a-button>
+            <a-button type="link" size="small" v-if="record.status === 0" @click="handleUpdateStatus(record, 1)">开始</a-button>
+            <a-button type="link" size="small" v-if="record.status === 1" @click="handleUpdateStatus(record, 2)">静置完成</a-button>
+            <a-button type="link" size="small" v-if="record.status === 2" @click="handleUpdateStatus(record, 3)">结束</a-button>
             <a-button type="link" size="small" danger @click="onDelete(record)">
               <DeleteOutlined />删除
             </a-button>
@@ -89,10 +92,10 @@ const columns = [
   { title: '实际长度(m)', dataIndex: 'actualLength', width: 110 },
   { title: '状态', dataIndex: 'status', width: 100 },
   { title: '创建时间', dataIndex: 'createTime', width: 160 },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 130 },
+  { title: '操作', dataIndex: 'action', fixed: 'right', width: 200 },
 ];
 
-const queryFormState = { orderNo: '', pageNum: 1, pageSize: 10 };
+const queryFormState = { orderNo: '', pageNum: 1, pageSize: 10, relaxType: 0 };
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);
@@ -114,7 +117,19 @@ async function queryData() {
 onMounted(queryData);
 
 const formModal = ref();
-function openForm(row) { formModal.value.show(row); }
+function openForm(row) { formModal.value.show(row, 0); }
+
+function handleUpdateStatus(row, status) {
+  const label = { 1: '开始', 2: '静置完成', 3: '结束' }[status];
+  Modal.confirm({
+    title: '提示', content: `确定将该松布计划标记为"${label}"吗?`, okText: '确定', okType: 'primary',
+    onOk: async () => {
+      try { SmartLoading.show(); await fabricRelaxApi.updateStatus(row.relaxId, status); message.success('操作成功'); queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
 function onDelete(row) {
   Modal.confirm({
     title: '提示', content: `确定删除该松布计划吗?`, okText: '删除', okType: 'danger',

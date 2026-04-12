@@ -14,6 +14,8 @@ import net.lab1024.sa.base.common.domain.ResponseDTO;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
+import java.util.List;
+
 @RestController
 @Tag(name = "裁剪数据-裁床单")
 public class CuttingOrderController {
@@ -43,5 +45,23 @@ public class CuttingOrderController {
     @PostMapping("/cutting/order/export")
     public void export(@RequestBody CuttingOrderQueryForm queryForm, HttpServletResponse response) throws IOException {
         cuttingOrderService.export(queryForm, response);
+    }
+
+    @Operation(summary = "更新裁床单状态")
+    @PostMapping("/cutting/order/updateStatus")
+    public ResponseDTO<String> updateStatus(@RequestParam Long cuttingOrderId, @RequestParam Integer status) {
+        return cuttingOrderService.updateStatus(cuttingOrderId, status);
+    }
+
+    @Operation(summary = "批量删除裁床单")
+    @PostMapping("/cutting/order/batchDelete")
+    public ResponseDTO<String> batchDelete(@RequestBody List<Long> ids) {
+        return cuttingOrderService.batchDelete(ids);
+    }
+
+    @Operation(summary = "批量完成裁床单")
+    @PostMapping("/cutting/order/batchComplete")
+    public ResponseDTO<String> batchComplete(@RequestBody List<Long> ids) {
+        return cuttingOrderService.batchComplete(ids);
     }
 }
