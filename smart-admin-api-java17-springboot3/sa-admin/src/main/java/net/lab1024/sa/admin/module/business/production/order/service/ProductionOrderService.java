@@ -81,6 +81,7 @@ public class ProductionOrderService {
         if (CollectionUtils.isNotEmpty(form.getDetailList())) {
             for (OrderDetailForm d : form.getDetailList()) {
                 ProductionOrderDetailEntity detail = SmartBeanUtil.copy(d, ProductionOrderDetailEntity.class);
+                detail.setDetailId(null); // 强制新增，避免主键冲突
                 detail.setOrderId(orderId);
                 detail.setDeletedFlag(Boolean.FALSE);
                 productionOrderDetailDao.insert(detail);
@@ -97,6 +98,7 @@ public class ProductionOrderService {
         if (CollectionUtils.isNotEmpty(form.getFabricList())) {
             for (OrderFabricForm f : form.getFabricList()) {
                 ProductionOrderFabricEntity fabric = SmartBeanUtil.copy(f, ProductionOrderFabricEntity.class);
+                fabric.setId(null); // 强制新增
                 fabric.setOrderId(orderId);
                 fabric.setDeletedFlag(Boolean.FALSE);
                 productionOrderFabricDao.insert(fabric);
@@ -107,6 +109,7 @@ public class ProductionOrderService {
         if (CollectionUtils.isNotEmpty(form.getProcessList())) {
             for (OrderProcessForm p : form.getProcessList()) {
                 ProductionProcessEntity process = SmartBeanUtil.copy(p, ProductionProcessEntity.class);
+                process.setProcessId(null); // 强制新增
                 process.setOrderId(orderId);
                 process.setStatus(0);
                 process.setDeletedFlag(Boolean.FALSE);
@@ -138,12 +141,48 @@ public class ProductionOrderService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> unissue(Long orderId) {
+        ProductionOrderEntity entity = productionOrderDao.selectById(orderId);
+        if (entity == null) return ResponseDTO.userErrorParam("指令单不存在");
+        if (entity.getStatus() != 2) return ResponseDTO.userErrorParam("只有已下达的单据才能反下达");
+        entity.setStatus(1);
+        entity.setIssueDate(null);
+        productionOrderDao.updateById(entity);
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public ResponseDTO<String> delete(Long orderId) {
         ProductionOrderEntity entity = productionOrderDao.selectById(orderId);
         if (entity == null) return ResponseDTO.userErrorParam("指令单不存在");
-        if (entity.getStatus() == 2) return ResponseDTO.userErrorParam("已下达的单据不能删除");
         entity.setDeletedFlag(Boolean.TRUE);
         productionOrderDao.updateById(entity);
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> batchDelete(List<Long> orderIds) {
+        if (orderIds == null || orderIds.isEmpty()) return ResponseDTO.userErrorParam("请选择要删除的单据");
+        for (Long orderId : orderIds) {
+            ProductionOrderEntity entity = productionOrderDao.selectById(orderId);
+            if (entity != null) {
+                entity.setDeletedFlag(Boolean.TRUE);
+                productionOrderDao.updateById(entity);
+            }
+        }
+        return ResponseDTO.ok();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseDTO<String> batchComplete(List<Long> orderIds) {
+        if (orderIds == null || orderIds.isEmpty()) return ResponseDTO.userErrorParam("请选择要完工的单据");
+        for (Long orderId : orderIds) {
+            ProductionOrderEntity entity = productionOrderDao.selectById(orderId);
+            if (entity != null) {
+                entity.setStatus(3);
+                productionOrderDao.updateById(entity);
+            }
+        }
         return ResponseDTO.ok();
     }
 

@@ -12,6 +12,7 @@ import net.lab1024.sa.admin.module.business.production.order.service.ProductionO
 import net.lab1024.sa.base.common.domain.PageResult;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @Tag(name = "生产管理-生产制单")
@@ -60,5 +61,26 @@ public class ProductionOrderController {
     @SaCheckPermission("production:order:delete")
     public ResponseDTO<String> delete(@PathVariable Long orderId) {
         return productionOrderService.delete(orderId);
+    }
+
+    @Operation(summary = "反下达指令单")
+    @GetMapping("/production/order/unissue/{orderId}")
+    @SaCheckPermission("production:order:issue")
+    public ResponseDTO<String> unissue(@PathVariable Long orderId) {
+        return productionOrderService.unissue(orderId);
+    }
+
+    @Operation(summary = "批量删除指令单")
+    @PostMapping("/production/order/batchDelete")
+    @SaCheckPermission("production:order:delete")
+    public ResponseDTO<String> batchDelete(@RequestBody List<Long> orderIds) {
+        return productionOrderService.batchDelete(orderIds);
+    }
+
+    @Operation(summary = "批量完工")
+    @PostMapping("/production/order/batchComplete")
+    @SaCheckPermission("production:order:update")
+    public ResponseDTO<String> batchComplete(@RequestBody List<Long> orderIds) {
+        return productionOrderService.batchComplete(orderIds);
     }
 }

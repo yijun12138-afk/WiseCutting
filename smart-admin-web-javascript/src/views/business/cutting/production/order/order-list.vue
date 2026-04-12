@@ -26,19 +26,34 @@
     <a-row class="smart-table-btn-block">
       <div class="smart-table-operate-block">
         <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
+        <a-button type="primary" style="margin-left:8px" :disabled="selectedRowKeys.length === 0" @click="onBatchComplete">
+          <CheckCircleOutlined />完工
+        </a-button>
+        <a-button danger style="margin-left:8px" :disabled="selectedRowKeys.length === 0" @click="onBatchDelete">
+          <DeleteOutlined />批量删除
+        </a-button>
       </div>
     </a-row>
-    <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="orderId" :pagination="false" bordered>
+    <a-table
+      size="small"
+      :dataSource="tableData"
+      :columns="columns"
+      rowKey="orderId"
+      :pagination="false"
+      bordered
+      :row-selection="rowSelection"
+      :scroll="{ x: 1100 }"
+    >
       <template #bodyCell="{ text, record, column }">
         <template v-if="column.dataIndex === 'status'">
-          <a-tag :color="statusColor(text)">{{ statusText(text) }}</a-tag>
+          <a-tag :color="statusColor(text)"><template #icon><component :is="statusIcon(text)" /></template>{{ statusText(text) }}</a-tag>
         </template>
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="openForm(record)">编辑</a-button>
             <a-button type="link" @click="onIssue(record)" v-if="record.status === 1">下达</a-button>
-            <a-button type="link" @click="onComplete(record)" v-if="record.status === 2">完工</a-button>
-            <a-button type="link" danger @click="onDelete(record)" v-if="record.status === 1">删除</a-button>
+            <a-button type="link" @click="onUnissue(record)" v-if="record.status === 2">反下达</a-button>
+            <a-button type="link" danger @click="onDelete(record)">删除</a-button>
           </div>
         </template>
       </template>
@@ -48,41 +63,49 @@
         v-model:current="queryForm.pageNum" v-model:pageSize="queryForm.pageSize"
         :total="total" @change="queryData" :show-total="(t) => `共${t}条`" />
     </div>
-    <OrderFormDrawer ref="formDrawer" @reload="queryData" />
+    <OrderFormModal ref="formModal" @reload="queryData" />
   </a-card>
 </template>
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { message, Modal } from 'ant-design-vue';
-import { SearchOutlined, ReloadOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined, ReloadOutlined, PlusOutlined, DeleteOutlined, CheckCircleOutlined,
+  ClockCircleFilled, SyncOutlined } from '@ant-design/icons-vue';
 import { SmartLoading } from '/@/components/framework/smart-loading';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
 import { productionOrderApi } from '/@/api/business/production/order-api';
-import OrderFormDrawer from './components/order-form-drawer.vue';
+import OrderFormModal from './components/order-form-modal.vue';
 import _ from 'lodash';
 
-const columns = ref([
+const columns = [
   { title: '指令单号', dataIndex: 'orderNo', width: 160 },
-  { title: '客户名称', dataIndex: 'customerName', width: 130 },
-  { title: '款号', dataIndex: 'styleNo', width: 120 },
-  { title: '款名', dataIndex: 'styleName', width: 130 },
+  { title: '客户名称', dataIndex: 'customerName', width: 120 },
+  { title: '款号', dataIndex: 'styleNo', width: 100 },
+  { title: '款名', dataIndex: 'styleName', width: 120 },
   { title: '交货日期', dataIndex: 'deliveryDate', width: 110 },
   { title: '下单数量', dataIndex: 'orderQuantity', width: 90 },
   { title: '完成数量', dataIndex: 'finishQuantity', width: 90 },
   { title: '状态', dataIndex: 'status', width: 80 },
-  { title: '创建人', dataIndex: 'createUserName', width: 100 },
-  { title: '创建时间', dataIndex: 'createTime', width: 160 },
-  { title: '操作', dataIndex: 'action', fixed: 'right', width: 180 },
-]);
+  { title: '创建人', dataIndex: 'createUserName', width: 90 },
+  { title: '操作', dataIndex: 'action', fixed: 'right', width: 150 },
+];
 
 const queryFormState = { orderNo: '', styleNo: '', status: undefined, pageNum: 1, pageSize: 10 };
 const queryForm = reactive(_.cloneDeep(queryFormState));
 const tableData = ref([]);
 const total = ref(0);
 
+// 多选
+const selectedRowKeys = ref([]);
+const rowSelection = {
+  selectedRowKeys,
+  onChange: (keys) => { selectedRowKeys.value = keys; },
+};
+
 function statusText(s) { return { 1: '计划', 2: '下达', 3: '完工' }[s] || s; }
-function statusColor(s) { return { 1: 'default', 2: 'blue', 3: 'green' }[s] || 'default'; }
+function statusColor(s) { return { 1: 'default', 2: 'processing', 3: 'success' }[s] || 'default'; }
+function statusIcon(s) { return { 1: ClockCircleFilled, 2: SyncOutlined, 3: CheckCircleOutlined }[s]; }
 
 function resetQuery() { Object.assign(queryForm, _.cloneDeep(queryFormState)); queryData(); }
 function onSearch() { queryForm.pageNum = 1; queryData(); }
@@ -92,16 +115,17 @@ async function queryData() {
     const res = await productionOrderApi.query(queryForm);
     tableData.value = res.data.list;
     total.value = res.data.total;
+    selectedRowKeys.value = [];
   } catch (e) { smartSentry.captureError(e); }
 }
 onMounted(queryData);
 
-const formDrawer = ref();
-function openForm(row) { formDrawer.value.show(row); }
+const formModal = ref();
+function openForm(row) { formModal.value.show(row); }
 
 function onIssue(row) {
   Modal.confirm({
-    title: '下达确认', content: `确定下达指令单【${row.orderNo}】吗？下达后不可修改。`,
+    title: '下达确认', content: `确定下达指令单【${row.orderNo}】吗？`,
     okText: '下达', okType: 'primary',
     onOk: async () => {
       try { SmartLoading.show(); await productionOrderApi.issue(row.orderId); message.success('下达成功'); queryData(); }
@@ -110,12 +134,12 @@ function onIssue(row) {
   });
 }
 
-function onComplete(row) {
+function onUnissue(row) {
   Modal.confirm({
-    title: '完工确认', content: `确定将指令单【${row.orderNo}】标记为完工吗？`,
-    okText: '完工', okType: 'primary',
+    title: '反下达确认', content: `确定将指令单【${row.orderNo}】反下达回计划状态吗？`,
+    okText: '反下达', okType: 'default',
     onOk: async () => {
-      try { SmartLoading.show(); await productionOrderApi.complete(row.orderId); message.success('完工成功'); queryData(); }
+      try { SmartLoading.show(); await productionOrderApi.unissue(row.orderId); message.success('反下达成功'); queryData(); }
       catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
     },
   });
@@ -127,6 +151,28 @@ function onDelete(row) {
     okText: '删除', okType: 'danger',
     onOk: async () => {
       try { SmartLoading.show(); await productionOrderApi.delete(row.orderId); message.success('删除成功'); queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function onBatchDelete() {
+  Modal.confirm({
+    title: '批量删除', content: `确定删除选中的 ${selectedRowKeys.value.length} 条指令单吗？`,
+    okText: '删除', okType: 'danger',
+    onOk: async () => {
+      try { SmartLoading.show(); await productionOrderApi.batchDelete(selectedRowKeys.value); message.success('批量删除成功'); queryData(); }
+      catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
+    },
+  });
+}
+
+function onBatchComplete() {
+  Modal.confirm({
+    title: '批量完工', content: `确定将选中的 ${selectedRowKeys.value.length} 条指令单标记为完工吗？`,
+    okText: '完工', okType: 'primary',
+    onOk: async () => {
+      try { SmartLoading.show(); await productionOrderApi.batchComplete(selectedRowKeys.value); message.success('批量完工成功'); queryData(); }
       catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
     },
   });

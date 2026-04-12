@@ -1,21 +1,29 @@
 <template>
-  <default-home-card icon="AreaChartOutlined" title="本周铺布 & 松布完成趋势">
+  <default-home-card icon="AreaChartOutlined" title="本周铺布 &amp; 松布 &amp; 裁剪完工趋势">
     <div class="echarts-box">
-      <div class="gradient-main" id="gradient-main"></div>
+      <div class="gradient-main" ref="chartRef"></div>
     </div>
   </default-home-card>
 </template>
 <script setup>
   import DefaultHomeCard from '/@/views/system/home/components/default-home-card.vue';
   import * as echarts from 'echarts';
-  import { onMounted } from 'vue';
+  import { onMounted, watch, ref } from 'vue';
 
-  onMounted(() => {
-    init();
+  const props = defineProps({
+    chartData: { type: Object, default: null },
   });
 
-  function init() {
-    let option = {
+  const chartRef = ref(null);
+  let myChart = null;
+
+  const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+
+  function buildOption(data) {
+    const spreadData = data?.spreadDailyComplete || [0, 0, 0, 0, 0, 0, 0];
+    const relaxData = data?.relaxDailyComplete || [0, 0, 0, 0, 0, 0, 0];
+    const cuttingData = data?.cuttingDailyComplete || [0, 0, 0, 0, 0, 0, 0];
+    return {
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'cross', label: { backgroundColor: '#1a1a2e' } },
@@ -32,86 +40,56 @@
         textStyle: { fontSize: 12, color: '#666' },
       },
       grid: { left: '2%', right: '3%', bottom: '3%', top: '36px', containLabel: true },
-      xAxis: [
-        {
-          type: 'category',
-          boundaryGap: false,
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-          axisLine: { lineStyle: { color: '#eee' } },
-          axisTick: { show: false },
-          axisLabel: { color: '#888', fontSize: 12 },
-        },
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          splitLine: { lineStyle: { color: '#f5f5f5', type: 'dashed' } },
-          axisLabel: { color: '#888', fontSize: 12 },
-        },
-      ],
+      xAxis: [{
+        type: 'category',
+        boundaryGap: false,
+        data: days,
+        axisLine: { lineStyle: { color: '#eee' } },
+        axisTick: { show: false },
+        axisLabel: { color: '#888', fontSize: 12 },
+      }],
+      yAxis: [{
+        type: 'value',
+        splitLine: { lineStyle: { color: '#f5f5f5', type: 'dashed' } },
+        axisLabel: { color: '#888', fontSize: 12 },
+      }],
       series: [
         {
-          name: '铺布完成',
-          type: 'line',
-          stack: 'Total',
-          smooth: true,
-          lineStyle: { width: 0 },
-          showSymbol: false,
-          areaStyle: {
-            opacity: 0.75,
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(6,182,212,0.9)' },
-              { offset: 1, color: 'rgba(6,182,212,0.1)' },
-            ]),
-          },
-          emphasis: { focus: 'series' },
-          data: [18, 25, 20, 30, 28, 15, 22],
+          name: '铺布完成', type: 'line', stack: 'Total', smooth: true,
+          lineStyle: { width: 0 }, showSymbol: false,
+          areaStyle: { opacity: 0.75, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(6,182,212,0.9)' }, { offset: 1, color: 'rgba(6,182,212,0.1)' }]) },
+          emphasis: { focus: 'series' }, data: spreadData,
         },
         {
-          name: '松布完成',
-          type: 'line',
-          stack: 'Total',
-          smooth: true,
-          lineStyle: { width: 0 },
-          showSymbol: false,
-          areaStyle: {
-            opacity: 0.75,
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(16,185,129,0.9)' },
-              { offset: 1, color: 'rgba(16,185,129,0.1)' },
-            ]),
-          },
-          emphasis: { focus: 'series' },
-          data: [10, 14, 12, 18, 16, 9, 13],
+          name: '松布完成', type: 'line', stack: 'Total', smooth: true,
+          lineStyle: { width: 0 }, showSymbol: false,
+          areaStyle: { opacity: 0.75, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(16,185,129,0.9)' }, { offset: 1, color: 'rgba(16,185,129,0.1)' }]) },
+          emphasis: { focus: 'series' }, data: relaxData,
         },
         {
-          name: '裁剪完工',
-          type: 'line',
-          stack: 'Total',
-          smooth: true,
-          lineStyle: { width: 0 },
-          showSymbol: false,
+          name: '裁剪完工', type: 'line', stack: 'Total', smooth: true,
+          lineStyle: { width: 0 }, showSymbol: false,
           label: { show: false },
-          areaStyle: {
-            opacity: 0.75,
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(99,102,241,0.9)' },
-              { offset: 1, color: 'rgba(99,102,241,0.1)' },
-            ]),
-          },
-          emphasis: { focus: 'series' },
-          data: [8, 12, 9, 14, 13, 6, 10],
+          areaStyle: { opacity: 0.75, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(99,102,241,0.9)' }, { offset: 1, color: 'rgba(99,102,241,0.1)' }]) },
+          emphasis: { focus: 'series' }, data: cuttingData,
         },
       ],
     };
-    let chartDom = document.getElementById('gradient-main');
-    if (chartDom) {
-      let myChart = echarts.init(chartDom);
-      option && myChart.setOption(option);
-      // 自适应宽度
-      window.addEventListener('resize', () => myChart.resize());
-    }
   }
+
+  onMounted(() => {
+    if (chartRef.value) {
+      myChart = echarts.init(chartRef.value);
+      myChart.setOption(buildOption(props.chartData));
+      window.addEventListener('resize', () => myChart?.resize());
+    }
+  });
+
+  watch(() => props.chartData, (val) => {
+    if (myChart && val) {
+      myChart.setOption(buildOption(val));
+    }
+  });
 </script>
 <style lang="less" scoped>
   .echarts-box {

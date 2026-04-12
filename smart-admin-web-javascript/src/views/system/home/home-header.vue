@@ -156,6 +156,7 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
     position: relative;
     overflow: hidden;
+    flex-wrap: wrap;
 
     // 背景装饰
     &::before {
@@ -242,6 +243,7 @@
 
   .banner-center {
     flex: 1;
+    min-width: 260px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -252,7 +254,7 @@
       border-radius: 12px;
       padding: 12px 20px;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      max-width: 380px;
+      max-width: 480px;
       width: 100%;
       position: relative;
 
@@ -270,8 +272,10 @@
         color: rgba(255, 255, 255, 0.85);
         font-size: 13px;
         text-align: center;
-        line-height: 1.6;
+        line-height: 1.8;
         padding-top: 4px;
+        word-break: break-all;
+        white-space: normal;
       }
     }
 
@@ -279,6 +283,8 @@
       font-size: 12px;
       color: rgba(255, 255, 255, 0.5);
       text-align: center;
+      white-space: normal;
+      word-break: break-all;
     }
   }
 
@@ -290,6 +296,10 @@
     iframe {
       border-radius: 8px;
       filter: brightness(0.9);
+    }
+
+    @media (max-width: 900px) {
+      display: none;
     }
   }
 

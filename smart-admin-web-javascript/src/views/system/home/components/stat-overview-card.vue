@@ -1,9 +1,5 @@
 <!--
-  * 首页 - 数据统计概览
-  *
-  * @Author:    裁匠实验室
-  * @Date:      2024-04-09
-  *
+  * 首页 - 数据统计概览（真实数据）
 -->
 <template>
   <div class="stat-overview">
@@ -19,11 +15,6 @@
       <div class="stat-content">
         <div class="stat-label">{{ item.label }}</div>
         <div class="stat-value">{{ item.value }}</div>
-        <div class="stat-trend">
-          <component :is="$antIcons[item.trendIcon]" :style="{ color: item.trendColor }" />
-          <span :style="{ color: item.trendColor }">{{ item.trend }}</span>
-          <span class="stat-sub">较上周</span>
-        </div>
       </div>
       <div class="stat-icon-wrap">
         <component :is="$antIcons[item.icon]" class="stat-main-icon" />
@@ -33,52 +24,49 @@
 </template>
 
 <script setup>
-  const stats = [
-    {
-      key: 'plan',
-      label: '裁剪计划（本周）',
-      value: '24',
-      icon: 'FileTextOutlined',
-      color: '#6366f1',
-      light: 'rgba(99,102,241,0.1)',
-      trend: '↑ 4 单',
-      trendIcon: 'ArrowUpOutlined',
-      trendColor: '#52c41a',
-    },
-    {
-      key: 'order',
-      label: '裁剪指令（本周）',
-      value: '68',
-      icon: 'OrderedListOutlined',
-      color: '#3b82f6',
-      light: 'rgba(59,130,246,0.1)',
-      trend: '↑ 12 单',
-      trendIcon: 'ArrowUpOutlined',
-      trendColor: '#52c41a',
-    },
-    {
-      key: 'spread',
-      label: '铺布任务（本周）',
-      value: '52',
-      icon: 'AppstoreOutlined',
-      color: '#06b6d4',
-      light: 'rgba(6,182,212,0.1)',
-      trend: '↓ 3 单',
-      trendIcon: 'ArrowDownOutlined',
-      trendColor: '#ff4d4f',
-    },
-    {
-      key: 'production',
-      label: '生产完工（本周）',
-      value: '41',
-      icon: 'CheckCircleOutlined',
-      color: '#10b981',
-      light: 'rgba(16,185,129,0.1)',
-      trend: '↑ 8 单',
-      trendIcon: 'ArrowUpOutlined',
-      trendColor: '#52c41a',
-    },
-  ];
+  import { computed } from 'vue';
+
+  const props = defineProps({
+    statsData: { type: Object, default: null },
+  });
+
+  const stats = computed(() => {
+    const d = props.statsData;
+    return [
+      {
+        key: 'plan',
+        label: '裁剪计划（本周）',
+        value: d ? d.weekCuttingPlanCount : '-',
+        icon: 'FileTextOutlined',
+        color: '#6366f1',
+        light: 'rgba(99,102,241,0.1)',
+      },
+      {
+        key: 'order',
+        label: '裁剪指令（本周）',
+        value: d ? d.weekCuttingOrderCount : '-',
+        icon: 'OrderedListOutlined',
+        color: '#3b82f6',
+        light: 'rgba(59,130,246,0.1)',
+      },
+      {
+        key: 'spread',
+        label: '铺布任务（本周）',
+        value: d ? d.weekSpreadCount : '-',
+        icon: 'AppstoreOutlined',
+        color: '#06b6d4',
+        light: 'rgba(6,182,212,0.1)',
+      },
+      {
+        key: 'production',
+        label: '生产完工（本周）',
+        value: d ? d.weekProductionCompleteCount : '-',
+        icon: 'CheckCircleOutlined',
+        color: '#10b981',
+        light: 'rgba(16,185,129,0.1)',
+      },
+    ];
+  });
 </script>
 
 <style scoped lang="less">
@@ -87,6 +75,18 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     margin-bottom: 0;
+  }
+
+  @media (max-width: 1100px) {
+    .stat-overview {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .stat-overview {
+      grid-template-columns: 1fr;
+    }
   }
 
   .stat-item {
@@ -99,6 +99,7 @@
     transition: all 0.25s ease;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     border: 1px solid #f0f0f0;
+    min-width: 0;
 
     &:hover {
       transform: translateY(-3px);
@@ -106,7 +107,6 @@
       border-color: var(--stat-color);
     }
 
-    // 左侧彩色竖条
     &::before {
       content: '';
       position: absolute;
@@ -135,6 +135,9 @@
         font-size: 12px;
         color: #888;
         margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .stat-value {
@@ -144,18 +147,6 @@
         line-height: 1;
         margin-bottom: 8px;
         font-family: 'DIN Alternate', 'Roboto', sans-serif;
-      }
-
-      .stat-trend {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 12px;
-
-        .stat-sub {
-          color: #bbb;
-          margin-left: 2px;
-        }
       }
     }
 
@@ -170,6 +161,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
 
       .stat-main-icon {
         font-size: 20px;
