@@ -13,6 +13,10 @@ import net.lab1024.sa.base.common.util.SmartBeanUtil;
 import net.lab1024.sa.base.common.util.SmartPageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import net.lab1024.sa.admin.module.business.cutting.order.domain.vo.CuttingOrderExcelVO;
+import net.lab1024.sa.base.common.util.SmartExcelUtil;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -54,6 +58,19 @@ public class CuttingOrderService {
         entity.setDeletedFlag(Boolean.TRUE);
         cuttingOrderDao.updateById(entity);
         return ResponseDTO.ok();
+    }
+
+    public void export(CuttingOrderQueryForm queryForm, HttpServletResponse response) throws IOException {
+        queryForm.setDeletedFlag(false);
+        List<CuttingOrderVO> list = cuttingOrderDao.queryAll(queryForm);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        List<CuttingOrderExcelVO> excelList = list.stream().map(o -> {
+            CuttingOrderExcelVO excel = SmartBeanUtil.copy(o, CuttingOrderExcelVO.class);
+            excel.setStatusName(getStatusName(o.getStatus()));
+            excel.setCreateTime(o.getCreateTime() != null ? o.getCreateTime().format(formatter) : "");
+            return excel;
+        }).toList();
+        SmartExcelUtil.exportExcel(response, "裁床单列表.xlsx", "裁床单", CuttingOrderExcelVO.class, excelList);
     }
 
     private String getStatusName(Integer status) {

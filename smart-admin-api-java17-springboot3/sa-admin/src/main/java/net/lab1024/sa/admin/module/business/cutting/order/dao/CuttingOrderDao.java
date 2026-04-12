@@ -12,4 +12,5 @@ import java.util.List;
 @Mapper
 public interface CuttingOrderDao extends BaseMapper<CuttingOrderEntity> {
     List<CuttingOrderVO> queryPage(Page<?> page, @Param("queryForm") CuttingOrderQueryForm queryForm);
+    List<CuttingOrderVO> queryAll(@Param("queryForm") CuttingOrderQueryForm queryForm);
 }

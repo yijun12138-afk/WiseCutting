@@ -3,6 +3,7 @@ package net.lab1024.sa.admin.module.business.cutting.order.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import net.lab1024.sa.admin.module.business.cutting.order.domain.form.CuttingOrderAddForm;
 import net.lab1024.sa.admin.module.business.cutting.order.domain.form.CuttingOrderQueryForm;
@@ -11,6 +12,7 @@ import net.lab1024.sa.admin.module.business.cutting.order.service.CuttingOrderSe
 import net.lab1024.sa.base.common.domain.PageResult;
 import net.lab1024.sa.base.common.domain.ResponseDTO;
 import org.springframework.web.bind.annotation.*;
+import java.io.IOException;
 
 @RestController
 @Tag(name = "裁剪数据-裁床单")
@@ -35,5 +37,11 @@ public class CuttingOrderController {
     @GetMapping("/cutting/order/delete/{cuttingOrderId}")
     public ResponseDTO<String> delete(@PathVariable Long cuttingOrderId) {
         return cuttingOrderService.delete(cuttingOrderId);
+    }
+
+    @Operation(summary = "导出裁床单Excel")
+    @PostMapping("/cutting/order/export")
+    public void export(@RequestBody CuttingOrderQueryForm queryForm, HttpServletResponse response) throws IOException {
+        cuttingOrderService.export(queryForm, response);
     }
 }

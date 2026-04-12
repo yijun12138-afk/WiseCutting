@@ -26,6 +26,7 @@
     <a-row class="smart-table-btn-block">
       <div class="smart-table-operate-block">
         <a-button type="primary" @click="openForm(null)"><PlusOutlined />新建</a-button>
+        <a-button @click="onExport" style="margin-left:8px"><DownloadOutlined />导出Excel</a-button>
       </div>
        <div class="smart-table-setting-block">
         <TableOperator v-model="columns" :tableId="TABLE_ID_CONST.BUSINESS.CUTTING.CUTTINGORDER" :refresh="queryData" />
@@ -67,7 +68,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { message, Modal } from 'ant-design-vue';
-import { SearchOutlined, ReloadOutlined, PlusOutlined, ClockCircleFilled, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined, ReloadOutlined, PlusOutlined, DownloadOutlined, ClockCircleFilled, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
 import { SmartLoading } from '/@/components/framework/smart-loading';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { PAGE_SIZE_OPTIONS } from '/@/constants/common-const';
@@ -131,8 +132,24 @@ async function queryData() {
 onMounted(queryData);
 
 const formModal = ref();
-function openForm(row) { 
+function openForm(row) {
   formModal.value.show(row);
+}
+
+async function onExport() {
+  try {
+    SmartLoading.show();
+    await cuttingOrderApi.export({
+      cuttingOrderNo: queryForm.cuttingOrderNo,
+      orderNo: queryForm.orderNo,
+      status: queryForm.status,
+    });
+    message.success('导出成功');
+  } catch (e) {
+    smartSentry.captureError(e);
+  } finally {
+    SmartLoading.hide();
+  }
 }
 
 function onDelete(row) {
