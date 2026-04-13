@@ -1489,7 +1489,9 @@ VALUES
 (10020,'客户管理',2,10018,2,'/basic/customer','business/cutting/basic/customer/customer-list',NULL,NULL,NULL,'TeamOutlined',NULL,0,NULL,1,1,0,0,1,NOW(),1,NOW()),
 (10021,'款式颜色',2,10018,3,'/basic/style-color','business/cutting/basic/stylecolor/stylecolor-list',NULL,NULL,NULL,'BgColorsOutlined',NULL,0,NULL,1,1,0,0,1,NOW(),1,NOW()),
 (10022,'尺寸列表',2,10018,4,'/basic/size','business/cutting/basic/size/size-list',NULL,NULL,NULL,'ColumnWidthOutlined',NULL,0,NULL,1,1,0,0,1,NOW(),1,NOW()),
-(10023,'单位管理',2,10018,5,'/basic/unit','business/cutting/basic/unit/unit-list',NULL,NULL,NULL,'NumberOutlined',NULL,0,NULL,1,1,0,0,1,NOW(),1,NOW());
+(10023,'单位管理',2,10018,5,'/basic/unit','business/cutting/basic/unit/unit-list',NULL,NULL,NULL,'NumberOutlined',NULL,0,NULL,1,1,0,0,1,NOW(),1,NOW()),
+(10024,'智能助手',1,0,0,'/ai',NULL,NULL,NULL,NULL,'RobotOutlined',NULL,0,NULL,0,1,0,0,1,NOW(),1,NOW()),
+(10025,'AI对话',2,10024,1,'/ai/chat','business/cutting/ai/ai-chat',NULL,NULL,NULL,'MessageOutlined',NULL,0,NULL,1,1,0,0,1,NOW(),1,NOW());
 
 -- 给超级管理员角色（role_id=1）分配所有菜单权限
 INSERT INTO `t_role_menu` (`role_id`, `menu_id`)
