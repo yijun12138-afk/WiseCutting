@@ -73,6 +73,7 @@ public class FabricService {
                 FabricSkuEntity sku = SmartBeanUtil.copy(s, FabricSkuEntity.class);
                 sku.setFabricId(fabricId);
                 sku.setDeletedFlag(Boolean.FALSE);
+                sku.setSkuId(null);
                 return sku;
             }).collect(Collectors.toList());
             skuEntities.forEach(fabricSkuDao::insert);

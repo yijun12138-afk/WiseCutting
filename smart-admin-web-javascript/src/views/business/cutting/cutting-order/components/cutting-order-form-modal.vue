@@ -203,7 +203,7 @@ const formDefault = {
   fabricId: undefined,
   fabricNo: '',
   fabricName: '',
-  status: 1, // 默认待裁
+  status: undefined, // 由后端默认或用户选择
   remark: '',
 };
 

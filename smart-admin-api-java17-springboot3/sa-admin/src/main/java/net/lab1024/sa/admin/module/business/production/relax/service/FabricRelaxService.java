@@ -33,7 +33,7 @@ public class FabricRelaxService {
     public ResponseDTO<String> addOrUpdate(FabricRelaxAddForm form) {
         FabricRelaxEntity entity = SmartBeanUtil.copy(form, FabricRelaxEntity.class);
         if (form.getRelaxId() == null) {
-            entity.setStatus(0);
+            entity.setStatus(form.getStatus() != null ? form.getStatus() : 0);
             entity.setDeletedFlag(Boolean.FALSE);
             fabricRelaxDao.insert(entity);
         } else {

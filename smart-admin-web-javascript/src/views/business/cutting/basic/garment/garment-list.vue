@@ -26,6 +26,9 @@
     </a-row>
     <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="garmentId" :pagination="false" bordered>
       <template #bodyCell="{ text, record, column }">
+        <template v-if="column.dataIndex === 'garmentNo'">
+          <a @click="openForm(record)" style="color: #1890ff; cursor: pointer">{{ text }}</a>
+        </template>
         <template v-if="column.dataIndex === 'disabledFlag'">
           <a-tag :color="text ? 'red' : 'green'">{{ text ? '停用' : '正常' }}</a-tag>
         </template>

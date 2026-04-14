@@ -45,7 +45,7 @@
     >
       <template #bodyCell="{ text, record, column }">
         <template v-if="column.dataIndex === 'orderNo'">
-          <span style="color:#1677ff;font-weight:500"><FileTextOutlined style="margin-right:4px" />{{ text }}</span>
+          <a @click="openForm(record)" style="color: #1890ff; cursor: pointer"><FileTextOutlined style="margin-right:4px" />{{ text }}</a>
         </template>
         <template v-if="column.dataIndex === 'status'">
           <a-tag :color="statusColor(text)">

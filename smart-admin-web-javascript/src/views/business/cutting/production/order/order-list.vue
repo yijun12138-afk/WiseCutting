@@ -45,6 +45,9 @@
       :scroll="{ x: 1100 }"
     >
       <template #bodyCell="{ text, record, column }">
+        <template v-if="column.dataIndex === 'orderNo'">
+          <a @click="openForm(record)" style="color: #1890ff; cursor: pointer">{{ text }}</a>
+        </template>
         <template v-if="column.dataIndex === 'status'">
           <a-tag :color="statusColor(text)"><template #icon><component :is="statusIcon(text)" /></template>{{ statusText(text) }}</a-tag>
         </template>
@@ -180,24 +183,24 @@ function onBatchComplete() {
 }
 
 function onUpdateFinishQty(row) {
-  let qty = row.finishQuantity || 0;
+  const qtyRef = ref(row.finishQuantity || 0);
   Modal.confirm({
     title: `更新完工数量 - ${row.orderNo}`,
     content: h('div', { style: 'padding: 8px 0' }, [
       h('span', { style: 'margin-right: 8px' }, '完工数量：'),
       h(InputNumber, {
-        value: qty,
+        defaultValue: qtyRef.value,
         min: 0,
         max: row.orderQuantity,
         style: 'width: 120px',
-        onChange: (val) => { qty = val; },
+        onChange: (val) => { qtyRef.value = val; },
       }),
       h('span', { style: 'margin-left: 8px; color: #8c8c8c' }, `/ ${row.orderQuantity}`),
     ]),
     okText: '保存',
     okType: 'primary',
     onOk: async () => {
-      try { SmartLoading.show(); await productionOrderApi.updateFinishQuantity(row.orderId, qty); message.success('更新成功'); queryData(); }
+      try { SmartLoading.show(); await productionOrderApi.updateFinishQuantity(row.orderId, qtyRef.value); message.success('更新成功'); queryData(); }
       catch (e) { smartSentry.captureError(e); } finally { SmartLoading.hide(); }
     },
   });

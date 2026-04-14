@@ -43,6 +43,9 @@
       :pagination="false" bordered
       :row-selection="rowSelection">
       <template #bodyCell="{ text, record, column }">
+        <template v-if="column.dataIndex === 'cuttingOrderNo'">
+          <a @click="openForm(record)" style="color: #1890ff; cursor: pointer">{{ text }}</a>
+        </template>
         <template v-if="column.dataIndex === 'status'">
           <a-tag :color="statusColor(text)"><template #icon><component :is="statusIcon(text)" /></template>{{ statusText(text) }}</a-tag>
         </template>

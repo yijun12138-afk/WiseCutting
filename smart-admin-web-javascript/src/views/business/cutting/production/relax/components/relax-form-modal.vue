@@ -1,5 +1,5 @@
 <template>
-  <a-modal :title="form.relaxId ? '编辑松布任务' : '新建松布任务'" v-model:open="visible" @ok="onSubmit" @cancel="onClose" :confirmLoading="loading" width="600px">
+  <a-modal :title="modalTitle" v-model:open="visible" @ok="onSubmit" @cancel="onClose" :confirmLoading="loading" width="600px">
     <a-form ref="formRef" :model="form" :rules="rules" :label-col="{ span: 6 }">
       <a-form-item label="指令单" name="orderId">
         <a-select v-model:value="form.orderId" placeholder="请选择指令单" style="width:100%" @change="onOrderChange" showSearch optionFilterProp="children" allowClear>
@@ -49,7 +49,7 @@
   </a-modal>
 </template>
 <script setup>
-import { ref, reactive, nextTick, onMounted } from 'vue';
+import { ref, reactive, nextTick, onMounted, computed } from 'vue';
 import { message } from 'ant-design-vue';
 import { smartSentry } from '/@/lib/smart-sentry';
 import { fabricRelaxApi } from '/@/api/business/production/relax-api';
@@ -63,6 +63,11 @@ const loading = ref(false);
 const orderList = ref([]);
 const fabricList = ref([]);
 const colorList = ref([]);
+
+const modalTitle = computed(() => {
+  if (form.relaxId) return form.relaxType === 0 ? '编辑松布计划' : '编辑松布任务';
+  return form.relaxType === 0 ? '新建松布计划' : '新建松布任务';
+});
 
 const formDefault = {
   relaxId: undefined, orderId: undefined, orderNo: '',

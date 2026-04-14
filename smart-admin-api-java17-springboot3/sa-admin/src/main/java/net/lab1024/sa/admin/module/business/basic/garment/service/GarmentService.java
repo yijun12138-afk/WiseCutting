@@ -67,6 +67,7 @@ public class GarmentService {
                 GarmentSkuEntity sku = SmartBeanUtil.copy(s, GarmentSkuEntity.class);
                 sku.setGarmentId(garmentId);
                 sku.setDeletedFlag(Boolean.FALSE);
+                sku.setSkuId(null);
                 return sku;
             }).collect(Collectors.toList());
             skuEntities.forEach(garmentSkuDao::insert);

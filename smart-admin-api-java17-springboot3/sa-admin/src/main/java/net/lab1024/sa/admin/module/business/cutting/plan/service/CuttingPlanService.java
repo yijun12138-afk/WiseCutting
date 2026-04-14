@@ -38,7 +38,7 @@ public class CuttingPlanService {
             String dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             long count = cuttingPlanDao.selectCount(null) + 1;
             entity.setPlanNo("CP" + dateStr + String.format("%04d", count));
-            entity.setStatus(1);
+            entity.setStatus(form.getStatus() != null ? form.getStatus() : 1);
             entity.setDeletedFlag(Boolean.FALSE);
             cuttingPlanDao.insert(entity);
         } else {

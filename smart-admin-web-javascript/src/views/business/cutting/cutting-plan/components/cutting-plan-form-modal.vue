@@ -130,8 +130,8 @@ const formDefault = {
   styleName: '',
   planDate: undefined,
   planQuantity: undefined,
-  actualQuantity: 0, 
-  status: 1,
+  actualQuantity: 0,
+  status: undefined,
   remark: '',
 };
 

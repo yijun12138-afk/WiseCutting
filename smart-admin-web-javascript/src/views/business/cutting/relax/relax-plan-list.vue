@@ -24,7 +24,7 @@
     <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="relaxId" :pagination="false" bordered>
       <template #bodyCell="{ text, record, column }">
         <template v-if="column.dataIndex === 'orderNo'">
-          <span style="color:#1677ff;font-weight:500"><FileTextOutlined style="margin-right:4px" />{{ text }}</span>
+          <a @click="openForm(record)" style="color: #1890ff; cursor: pointer"><FileTextOutlined style="margin-right:4px" />{{ text }}</a>
         </template>
         <template v-if="column.dataIndex === 'relaxHours'">
           <span><ClockCircleOutlined style="margin-right:4px;color:#faad14" />{{ text ? text + ' h' : '-' }}</span>

@@ -23,7 +23,10 @@
       </div>
     </a-row>
     <a-table size="small" :dataSource="tableData" :columns="columns" rowKey="sizeId" :pagination="false" bordered>
-      <template #bodyCell="{ record, column }">
+      <template #bodyCell="{ text, record, column }">
+        <template v-if="column.dataIndex === 'sizeName'">
+          <a @click="openForm(record)" style="color: #1890ff; cursor: pointer">{{ text }}</a>
+        </template>
         <template v-if="column.dataIndex === 'action'">
           <div class="smart-table-operate">
             <a-button type="link" @click="openForm(record)">编辑</a-button>

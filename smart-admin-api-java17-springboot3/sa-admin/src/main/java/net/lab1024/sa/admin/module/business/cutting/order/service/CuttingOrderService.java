@@ -43,7 +43,7 @@ public class CuttingOrderService {
             String dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             long count = cuttingOrderDao.selectCount(null) + 1;
             entity.setCuttingOrderNo("CO" + dateStr + String.format("%04d", count));
-            entity.setStatus(1);
+            entity.setStatus(form.getStatus() != null ? form.getStatus() : 1);
             entity.setDeletedFlag(Boolean.FALSE);
             if (SmartRequestUtil.getRequestUser() != null) {
                 entity.setCreateUserName(SmartRequestUtil.getRequestUser().getUserName());
